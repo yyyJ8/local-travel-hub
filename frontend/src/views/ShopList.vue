@@ -25,12 +25,12 @@ const SORTS = [
   { label: '人均从高到低', value: 'priceDesc' }
 ]
 const RATINGS = [
-  { label: '评分不限', value: null },
+  { label: '评分不限', value: '' },
   { label: '4.5 分以上', value: 4.5 },
   { label: '4.0 分以上', value: 4.0 }
 ]
 const PRICES = [
-  { label: '人均不限', value: null },
+  { label: '人均不限', value: '' },
   { label: '人均 ≤ 50', value: 50 },
   { label: '人均 ≤ 100', value: 100 },
   { label: '人均 ≤ 150', value: 150 }
@@ -38,8 +38,8 @@ const PRICES = [
 
 const query = reactive({
   category: String(route.query.category || ''),
-  minRating: null,
-  maxPrice: null,
+  minRating: '',
+  maxPrice: '',
   sortBy: 'popularity'
 })
 
@@ -51,8 +51,9 @@ async function load() {
   loading.value = true
   try {
     const params = { category: query.category, sortBy: query.sortBy }
-    if (query.minRating !== null) params.minRating = query.minRating
-    if (query.maxPrice !== null) params.maxPrice = query.maxPrice
+    // 空串表示「不限」：Element Plus 的 el-option 不接受 null 作为 value，故用空串哨兵值
+    if (query.minRating !== '') params.minRating = query.minRating
+    if (query.maxPrice !== '') params.maxPrice = query.maxPrice
     const data = await getShops(params)
     list.value = data.items || []
     total.value = data.total || 0
@@ -63,8 +64,8 @@ async function load() {
 
 function reset() {
   query.category = ''
-  query.minRating = null
-  query.maxPrice = null
+  query.minRating = ''
+  query.maxPrice = ''
   query.sortBy = 'popularity'
 }
 

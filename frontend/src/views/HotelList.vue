@@ -18,13 +18,13 @@ const SORTS = [
   { label: '评分优先', value: 'rating' }
 ]
 const STARS = [
-  { label: '星级不限', value: null },
+  { label: '星级不限', value: '' },
   { label: '5 星', value: 5 },
   { label: '4 星', value: 4 },
   { label: '3 星', value: 3 }
 ]
 const PRICE_RANGES = [
-  { label: '价格不限', value: null, min: null, max: null },
+  { label: '价格不限', value: '', min: null, max: null },
   { label: '600 元以上', value: 'gt600', min: 600, max: null },
   { label: '300 - 600 元', value: 'mid', min: 300, max: 600 },
   { label: '300 元以下', value: 'lt300', min: null, max: 300 }
@@ -44,8 +44,8 @@ const dateShortcuts = [
 ]
 
 const query = reactive({
-  star: null,
-  priceRange: null,
+  star: '',
+  priceRange: '',
   facilities: [],
   sortBy: 'popularity'
 })
@@ -62,7 +62,8 @@ async function load() {
   loading.value = true
   try {
     const params = { city: '成都', sortBy: query.sortBy }
-    if (query.star !== null) params.star = query.star
+    // 空串表示「不限」：Element Plus 的 el-option 不接受 null 作为 value，故用空串哨兵值
+    if (query.star !== '') params.star = query.star
     if (priceRangeObj.value.min !== null) params.minPrice = priceRangeObj.value.min
     if (priceRangeObj.value.max !== null) params.maxPrice = priceRangeObj.value.max
     if (query.facilities.length) params.facilities = query.facilities
@@ -86,8 +87,8 @@ function toggleFacility(f) {
 }
 
 function reset() {
-  query.star = null
-  query.priceRange = null
+  query.star = ''
+  query.priceRange = ''
   query.facilities = []
   query.sortBy = 'popularity'
   dateRange.value = [addDays(1), addDays(3)]

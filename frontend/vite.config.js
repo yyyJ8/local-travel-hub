@@ -20,5 +20,11 @@ export default defineConfig({
       interval: 400,
       ignored: ['**/node_modules/**', '**/.git/**', '**/*.tmpdir/**']
     }
+  },
+  // 渲染级自测（阶段9 验收用）：node 环境下挂载页面组件，验证真实渲染结果
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    include: ['tests/**/*.spec.js']
   }
 })

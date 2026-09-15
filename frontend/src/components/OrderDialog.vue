@@ -38,8 +38,9 @@ const visible = computed({
 const form = ref({
   name: '',
   phone: '',
-  bookTime: addDays(1),
-  checkOut: addDays(3),
+  // 初始化即套用列表页日历带入的日期，避免弹窗首次渲染时先显示默认日期
+  bookTime: props.defaultBookTime || addDays(1),
+  checkOut: props.defaultCheckOut || addDays(3),
   count: 1
 })
 const submitting = ref(false)
