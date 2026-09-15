@@ -66,7 +66,7 @@ onMounted(load)
       <!-- 预约对象 -->
       <section class="block">
         <div class="target-row">
-          <CoverImage :color="order.coverColor" :tag="order.coverTag" width="58px" height="58px" font-size="12px" />
+          <CoverImage :src="order.cover" :color="order.coverColor" :tag="order.coverTag" width="58px" height="58px" font-size="12px" />
           <div class="target-info">
             <div class="target-name">{{ order.targetName }}</div>
             <div class="item-name">{{ order.itemName }}</div>

@@ -16,13 +16,35 @@ describe('公共组件渲染', () => {
     expect(wrapper.text()).toContain('4.8')
   })
 
-  it('CoverImage：使用主色渐变并展示品类标签（离线占位图）', async () => {
+  it('CoverImage：无 src 时回退为渐变色块占位图', async () => {
     const { wrapper } = await mountView(CoverImage, '/', { props: { color: '#ff6633', tag: '火锅' } })
     expect(wrapper.text()).toContain('火锅')
     expect(wrapper.find('.cover').attributes('style')).toContain('#ff6633')
+    expect(wrapper.find('.cover-img').exists()).toBe(false)
+    expect(wrapper.classes()).toContain('is-fallback')
   })
 
-  it('ShopCard：渲染门店名称、评分、人均、品类标签、团购数量', async () => {
+  it('CoverImage：有 src 时渲染懒加载图片', async () => {
+    const { wrapper } = await mountView(CoverImage, '/', {
+      props: { src: '/images/shops/S001.jpg', tag: '火锅' }
+    })
+    const img = wrapper.find('.cover-img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toBe('/images/shops/S001.jpg')
+    expect(img.attributes('loading')).toBe('lazy')
+  })
+
+  it('CoverImage：图片加载失败时回退为占位图（断网/缺图不破版）', async () => {
+    const { wrapper } = await mountView(CoverImage, '/', {
+      props: { src: '/images/shops/not-exist.jpg', color: '#ff6633', tag: '火锅' }
+    })
+    expect(wrapper.find('.cover-img').exists()).toBe(true)
+    await wrapper.find('.cover-img').trigger('error') // 模拟图片加载失败
+    expect(wrapper.find('.cover-img').exists()).toBe(false)
+    expect(wrapper.text()).toContain('火锅')
+  })
+
+  it('ShopCard：渲染门店名称、评分、人均、品类标签、团购数量与封面图', async () => {
     const { wrapper } = await mountView(ShopCard, '/', { props: { shop: shopFixture } })
     const text = wrapper.text()
     expect(text).toContain('蜀大侠火锅（春熙路店）')
@@ -31,6 +53,7 @@ describe('公共组件渲染', () => {
     expect(text).toContain('¥128')
     expect(text).toContain('火锅')
     expect(text).toContain('4 个团购')
+    expect(wrapper.find('.cover-img').attributes('src')).toBe('/images/shops/S001.jpg')
   })
 
   it('HotelCard：渲染酒店名称、星级、设施、房价与晚数总价', async () => {

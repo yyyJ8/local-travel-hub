@@ -58,7 +58,7 @@ onMounted(load)
     <template v-else-if="shop">
       <!-- 门店基础信息 -->
       <div class="head">
-        <CoverImage :color="shop.coverColor" :tag="shop.coverTag" width="100%" height="150px" radius="0" font-size="20px" />
+        <CoverImage :src="shop.cover" :color="shop.coverColor" :tag="shop.coverTag" width="100%" height="180px" radius="0" font-size="20px" />
         <div class="head-info">
           <h1 class="shop-name">{{ shop.name }}</h1>
           <div class="rate-line">
@@ -284,7 +284,7 @@ onMounted(load)
   left: 0;
   right: 0;
   margin: 0 auto;
-  max-width: 480px;
+  max-width: var(--shell-width);
   height: 52px;
   background: #fff;
   border-top: 1px solid var(--border-color);

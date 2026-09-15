@@ -11,6 +11,10 @@
   --page-bg: #f5f6f8;
   --card-radius: 10px;
   --card-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  /* 画布宽度：移动端 App 形态的居中限宽容器。
+     480px = 手机；720px = 放宽后的"平板画布"（当前值）。
+     底部导航与详情页操作条均引用该变量，改这一处即可整体同步。 */
+  --shell-width: 720px;
 }
 
 * {
@@ -37,9 +41,9 @@ a {
   text-decoration: none;
 }
 
-/* 移动端风格容器：居中限宽，模拟大众点评/携程 App 版式 */
+/* 移动端风格容器：居中限宽，模拟大众点评/携程 App 版式（宽度由 --shell-width 统一控制） */
 .app-shell {
-  max-width: 480px;
+  max-width: var(--shell-width);
   margin: 0 auto;
   min-height: 100vh;
   background: #ffffff;

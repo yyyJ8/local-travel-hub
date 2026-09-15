@@ -20,7 +20,7 @@ function open() {
 
 <template>
   <div class="shop-card" @click="open">
-    <CoverImage :color="shop.coverColor" :tag="shop.coverTag" width="92px" height="92px" />
+    <CoverImage :src="shop.cover" :color="shop.coverColor" :tag="shop.coverTag" width="92px" height="92px" />
     <div class="info">
       <div class="name ellipsis">{{ shop.name }}</div>
       <div class="rate-line">

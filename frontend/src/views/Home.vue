@@ -50,6 +50,20 @@ function openCategory(c) {
   else router.push({ path: '/shops', query: { category: c.targetCategory } })
 }
 
+/** 轮播样式：有本地配图则用「深色渐变遮罩 + 照片」，无图/缺图回退品牌渐变色 */
+function bannerStyle(b) {
+  const base = { backgroundColor: b.colorFrom }
+  if (!b.image) {
+    return { ...base, background: `linear-gradient(120deg, ${b.colorFrom}, ${b.colorTo})` }
+  }
+  return {
+    ...base,
+    backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.22) 55%, rgba(0,0,0,0.05) 100%), url("${b.image}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  }
+}
+
 onMounted(load)
 </script>
 
@@ -69,14 +83,10 @@ onMounted(load)
     </div>
 
     <template v-else>
-      <!-- 轮播推荐位 -->
-      <el-carousel height="150px" :interval="4000" class="banner">
+      <!-- 轮播推荐位（本地照片 + 深色遮罩保证文字可读） -->
+      <el-carousel height="170px" :interval="4000" class="banner">
         <el-carousel-item v-for="b in banners" :key="b.id">
-          <div
-            class="banner-item"
-            :style="{ background: `linear-gradient(120deg, ${b.colorFrom}, ${b.colorTo})` }"
-            @click="openBanner(b)"
-          >
+          <div class="banner-item" :style="bannerStyle(b)" @click="openBanner(b)">
             <div class="banner-title">{{ b.title }}</div>
             <div class="banner-sub">{{ b.subtitle }}</div>
             <div class="banner-btn">立即查看 ›</div>

@@ -355,6 +355,7 @@ def _preset_orders() -> List[Dict]:
             "createdAt": (_NOW - timedelta(days=6)).strftime("%Y-%m-%d %H:%M:%S"),
             "coverColor": shop["coverColor"],
             "coverTag": shop["coverTag"],
+            "cover": shop["cover"],
         },
         {
             "orderNo": "ORD" + (_NOW - timedelta(days=4)).strftime("%Y%m%d") + "1002",
@@ -374,6 +375,7 @@ def _preset_orders() -> List[Dict]:
             "createdAt": (_NOW - timedelta(days=4)).strftime("%Y-%m-%d %H:%M:%S"),
             "coverColor": hotel["coverColor"],
             "coverTag": hotel["coverTag"],
+            "cover": hotel["cover"],
         },
         {
             "orderNo": "ORD" + (_NOW - timedelta(days=15)).strftime("%Y%m%d") + "1003",
@@ -393,6 +395,7 @@ def _preset_orders() -> List[Dict]:
             "createdAt": (_NOW - timedelta(days=15)).strftime("%Y-%m-%d %H:%M:%S"),
             "coverColor": shop2["coverColor"],
             "coverTag": shop2["coverTag"],
+            "cover": shop2["cover"],
         },
     ]
 

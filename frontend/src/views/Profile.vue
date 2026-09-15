@@ -123,7 +123,7 @@ onMounted(load)
           <el-tag :type="statusType(o.status)" size="small" effect="light">{{ o.status }}</el-tag>
         </div>
         <div class="order-main" @click="goDetail(o)">
-          <CoverImage :color="o.coverColor" :tag="o.coverTag" width="62px" height="62px" font-size="12px" />
+          <CoverImage :src="o.cover" :color="o.coverColor" :tag="o.coverTag" width="62px" height="62px" font-size="12px" />
           <div class="order-info">
             <div class="target ellipsis">{{ o.targetName }}</div>
             <div class="item ellipsis">{{ o.itemName }}</div>

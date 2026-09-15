@@ -14,6 +14,7 @@ export const shopFixture = {
   address: '成都市锦江区春熙路东段 18 号 3 层',
   coverColor: '#ff6633',
   coverTag: '火锅',
+  cover: '/images/shops/S001.jpg',
   packageCount: 4
 }
 
@@ -31,12 +32,13 @@ export const hotelFixture = {
   tags: ['太古里核心'],
   coverColor: '#0050b3',
   coverTag: '豪华五星',
+  cover: '/images/hotels/H001.jpg',
   roomCount: 4
 }
 
 export const homeFixture = {
   banners: [
-    { id: 'B001', title: '春日美食节', subtitle: '精选火锅 · 5 折起', colorFrom: '#ff7a45', colorTo: '#ff4d4f', targetType: 'shop', targetId: 'S001' }
+    { id: 'B001', title: '春日美食节', subtitle: '精选火锅 · 5 折起', colorFrom: '#ff7a45', colorTo: '#ff4d4f', image: '/images/banners/B001.jpg', targetType: 'shop', targetId: 'S001' }
   ],
   categories: [
     { id: 'C001', name: '美食', icon: 'Food', color: '#ff6633', targetType: 'shop', targetCategory: '美食' },

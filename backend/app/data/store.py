@@ -282,6 +282,7 @@ def create_order(payload) -> Optional[Dict]:
         "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "coverColor": target["coverColor"],
         "coverTag": target["coverTag"],
+        "cover": target.get("cover", ""),
     }
     _orders.append(order)  # ★ 追加至内存集合：仅当前服务运行期间可查询
     return order

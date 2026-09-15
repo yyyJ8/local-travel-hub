@@ -35,7 +35,7 @@ function open() {
 
 <template>
   <div class="hotel-card" @click="open">
-    <CoverImage :color="hotel.coverColor" :tag="hotel.coverTag" width="100px" height="100px" />
+    <CoverImage :src="hotel.cover" :color="hotel.coverColor" :tag="hotel.coverTag" width="100px" height="100px" />
     <div class="info">
       <div class="name ellipsis">{{ hotel.name }}</div>
       <div class="star-line">

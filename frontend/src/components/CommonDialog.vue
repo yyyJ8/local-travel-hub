@@ -48,8 +48,11 @@ function onCancel() {
 </template>
 
 <style scoped>
+/* el-dialog 挂载在 body 上，宽度按视口计算（92%）；
+   这里补一个上限，避免大屏/投影下弹窗被拉满整个屏幕宽度 */
 :deep(.el-dialog) {
   border-radius: 12px;
+  max-width: 560px;
 }
 :deep(.el-dialog__body) {
   padding-top: 6px;

@@ -61,7 +61,7 @@ onMounted(load)
 
     <template v-else-if="hotel">
       <!-- 酒店图文信息 -->
-      <CoverImage :color="hotel.coverColor" :tag="hotel.coverTag" width="100%" height="160px" radius="0" font-size="20px" />
+      <CoverImage :src="hotel.cover" :color="hotel.coverColor" :tag="hotel.coverTag" width="100%" height="200px" radius="0" font-size="20px" />
       <div class="head-info">
         <h1 class="hotel-name">{{ hotel.name }}</h1>
         <div class="star-line">
@@ -349,7 +349,7 @@ onMounted(load)
   left: 0;
   right: 0;
   margin: 0 auto;
-  max-width: 480px;
+  max-width: var(--shell-width);
   height: 52px;
   background: #fff;
   border-top: 1px solid var(--border-color);

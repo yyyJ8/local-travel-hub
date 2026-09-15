@@ -52,7 +52,7 @@ function go(path) {
   left: 0;
   right: 0;
   margin: 0 auto;
-  max-width: 480px;
+  max-width: var(--shell-width);
   height: 56px;
   display: flex;
   background: #ffffff;
