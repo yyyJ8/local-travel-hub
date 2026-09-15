@@ -29,6 +29,7 @@ const PRICE_RANGES = [
   { label: '300 - 600 元', value: 'mid', min: 300, max: 600 },
   { label: '300 元以下', value: 'lt300', min: null, max: 300 }
 ]
+const CITIES = ['全部', '成都', '重庆', '西安']
 
 const toStr = (d) => {
   const dt = new Date(d)
@@ -44,6 +45,7 @@ const dateShortcuts = [
 ]
 
 const query = reactive({
+  city: '成都',
   star: '',
   priceRange: '',
   facilities: [],
@@ -61,7 +63,7 @@ const priceRangeObj = computed(() => PRICE_RANGES.find((p) => p.value === query.
 async function load() {
   loading.value = true
   try {
-    const params = { city: '成都', sortBy: query.sortBy }
+    const params = { city: query.city === '全部' ? '' : query.city, sortBy: query.sortBy }
     // 空串表示「不限」：Element Plus 的 el-option 不接受 null 作为 value，故用空串哨兵值
     if (query.star !== '') params.star = query.star
     if (priceRangeObj.value.min !== null) params.minPrice = priceRangeObj.value.min
@@ -87,6 +89,7 @@ function toggleFacility(f) {
 }
 
 function reset() {
+  query.city = '成都'
   query.star = ''
   query.priceRange = ''
   query.facilities = []
@@ -94,8 +97,8 @@ function reset() {
   dateRange.value = [addDays(1), addDays(3)]
 }
 
-// 筛选条件与日历变化均触发重新查询（deep 监听已覆盖 dateRange，无需重复注册）
-watch(() => [query.star, query.priceRange, query.sortBy, query.facilities.length, dateRange.value], load, { deep: true })
+// 筛选条件、城市与日历变化均触发重新查询（deep 监听已覆盖 dateRange，无需重复注册）
+watch(() => [query.city, query.star, query.priceRange, query.sortBy, query.facilities.length, dateRange.value], load, { deep: true })
 onMounted(async () => {
   facilityOptions.value = await getFacilities()
   load()
@@ -108,6 +111,16 @@ onMounted(async () => {
 
     <!-- 日历 + 筛选 + 排序 -->
     <div class="filter-bar">
+      <!-- 城市切换（多城市演示：成都 / 重庆 / 西安） -->
+      <div class="city-row">
+        <span
+          v-for="c in CITIES"
+          :key="c"
+          class="chip-btn city-btn"
+          :class="{ on: query.city === c }"
+          @click="query.city = c"
+        >{{ c }}</span>
+      </div>
       <div class="date-line">
         <el-icon :size="14" color="#0086f6"><Calendar /></el-icon>
         <el-date-picker
@@ -147,7 +160,7 @@ onMounted(async () => {
     </div>
 
     <div class="count-line">
-      成都 · 符合条件酒店 <b>{{ total }}</b> 家
+      {{ query.city === '全部' ? '全部城市' : query.city }} · 符合条件酒店 <b>{{ total }}</b> 家
       <span v-if="nights > 0">｜ {{ dateRange?.[0] }} 至 {{ dateRange?.[1] }} 共 <b>{{ nights }}</b> 晚</span>
     </div>
 
@@ -182,6 +195,16 @@ onMounted(async () => {
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
+}
+.city-row {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 7px;
+  margin-bottom: 7px;
+  border-bottom: 1px dashed var(--border-color);
+}
+.city-btn {
+  font-weight: 600;
 }
 .selects {
   display: flex;

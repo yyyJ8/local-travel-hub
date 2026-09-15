@@ -12,6 +12,7 @@ router = APIRouter(prefix="/api/shops", tags=["本地生活"])
 @router.get("", summary="I3 门店列表接口（支持筛选与排序）")
 def list_shops(
     keyword: str = Query(default="", description="关键词，匹配门店名/标签/品类/区域"),
+    city: str = Query(default="", description="城市：成都 / 重庆 / 西安"),
     category: str = Query(default="", description="品类：美食 / 休闲娱乐"),
     minRating: Optional[float] = Query(default=None, description="最低评分，如 4.5"),
     maxPrice: Optional[int] = Query(default=None, description="人均价格上限，如 100"),
@@ -20,6 +21,7 @@ def list_shops(
     """门店列表查询。筛选与排序均在后端内存集合上完成。"""
     items = store.list_shops(
         keyword=keyword,
+        city=city,
         category=category,
         min_rating=minRating,
         max_price=maxPrice,

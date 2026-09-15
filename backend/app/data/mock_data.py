@@ -129,9 +129,9 @@ def _gen_packages(shop: Dict) -> List[Dict]:
 
 
 def _gen_comments(shop: Dict) -> List[Dict]:
-    """为门店生成 5~7 条模拟用户评论。"""
+    """为门店生成 10~12 条模拟用户评论（数量足够撑起评论区滚动）。"""
     rng = _rng(shop["id"] + "-cmt")
-    count = rng.randint(5, 7)
+    count = rng.randint(10, 12)
     comments = []
     now = datetime.now()
     for i in range(count):
@@ -178,9 +178,9 @@ def _gen_rooms(hotel: Dict) -> List[Dict]:
 
 
 def _gen_reviews(hotel: Dict) -> List[Dict]:
-    """为酒店生成 5~7 条模拟评价。"""
+    """为酒店生成 10~12 条模拟评价。"""
     rng = _rng(hotel["id"] + "-rev")
-    count = rng.randint(5, 7)
+    count = rng.randint(10, 12)
     reviews, rooms = [], _gen_rooms(hotel)
     now = datetime.now()
     for i in range(count):
@@ -214,6 +214,16 @@ _SHOPS_RAW: List[Dict] = [
     {"id": "S010", "name": "星空密室逃脱（天府广场店）", "category": "休闲娱乐", "subCategory": "密室", "rating": 4.7, "reviewCount": 2210, "avgPrice": 108, "popularity": 33200, "tags": ["盗墓主题", "民国谍战", "恐怖医院"], "district": "青羊区", "address": "成都市青羊区人民中路一段 5 号 6 层", "businessHours": "13:00 - 23:30", "phone": "028-8622-0010", "coverColor": "#391085", "coverTag": "密室"},
     {"id": "S011", "name": "纯K KTV（九眼桥店）", "category": "休闲娱乐", "subCategory": "KTV", "rating": 4.2, "reviewCount": 1320, "avgPrice": 138, "popularity": 19800, "tags": ["豪华中包", "果盘畅吃", "无线麦克风"], "district": "锦江区", "address": "成都市锦江区滨江东路 88 号 3 层", "businessHours": "14:00 - 次日 04:00", "phone": "028-8666-0011", "coverColor": "#eb2f96", "coverTag": "KTV"},
     {"id": "S012", "name": "漫咖啡（天府三街店）", "category": "休闲娱乐", "subCategory": "咖啡休闲", "rating": 4.3, "reviewCount": 1120, "avgPrice": 68, "popularity": 16400, "tags": ["华夫饼", "美式咖啡", "免费续杯"], "district": "高新区", "address": "成都市高新区天府三街 69 号 1 层", "businessHours": "09:00 - 23:00", "phone": "028-8512-0012", "coverColor": "#a0522d", "coverTag": "咖啡休闲"},
+    # ---- 重庆（4 家）----
+    {"id": "S013", "name": "重庆老火锅（解放碑店）", "city": "重庆", "category": "美食", "subCategory": "火锅", "rating": 4.7, "reviewCount": 13200, "avgPrice": 118, "popularity": 87600, "tags": ["毛肚", "鸭肠", "九宫格锅底"], "district": "渝中区", "address": "重庆市渝中区民权路 22 号 2 层", "businessHours": "11:00 - 次日 03:00", "phone": "023-6388-0013", "coverColor": "#fa541c", "coverTag": "重庆火锅"},
+    {"id": "S014", "name": "花市豌杂面（较场口店）", "city": "重庆", "category": "美食", "subCategory": "小面", "rating": 4.6, "reviewCount": 8900, "avgPrice": 26, "popularity": 52300, "tags": ["豌杂面", "牛肉面", "酸辣粉"], "district": "渝中区", "address": "重庆市渝中区较场口 88 号", "businessHours": "06:30 - 20:30", "phone": "023-6377-0014", "coverColor": "#d46b08", "coverTag": "重庆小面"},
+    {"id": "S015", "name": "江湖菜馆（观音桥店）", "city": "重庆", "category": "美食", "subCategory": "江湖菜", "rating": 4.4, "reviewCount": 5600, "avgPrice": 86, "popularity": 41200, "tags": ["辣子鸡", "水煮鱼", "蒜泥白肉"], "district": "江北区", "address": "重庆市江北区观音桥步行街 9 号 3 层", "businessHours": "10:30 - 22:00", "phone": "023-6777-0015", "coverColor": "#cf1322", "coverTag": "江湖菜"},
+    {"id": "S016", "name": "星光KTV（南坪店）", "city": "重庆", "category": "休闲娱乐", "subCategory": "KTV", "rating": 4.3, "reviewCount": 2100, "avgPrice": 126, "popularity": 22400, "tags": ["豪华大包", "自助餐台", "音响出色"], "district": "南岸区", "address": "重庆市南岸区南坪西路 15 号 5 层", "businessHours": "14:00 - 次日 04:00", "phone": "023-6288-0016", "coverColor": "#eb2f96", "coverTag": "KTV"},
+    # ---- 西安（4 家）----
+    {"id": "S017", "name": "老孙家泡馍（钟楼店）", "city": "西安", "category": "美食", "subCategory": "泡馍", "rating": 4.5, "reviewCount": 9800, "avgPrice": 66, "popularity": 58600, "tags": ["羊肉泡馍", "小炒泡馍", "糖蒜"], "district": "碑林区", "address": "西安市碑林区东大街 364 号", "businessHours": "09:00 - 21:30", "phone": "029-8721-0017", "coverColor": "#ad6800", "coverTag": "泡馍"},
+    {"id": "S018", "name": "秦豫肉夹馍（回民街店）", "city": "西安", "category": "美食", "subCategory": "小吃", "rating": 4.6, "reviewCount": 12400, "avgPrice": 30, "popularity": 69400, "tags": ["腊汁肉夹馍", "凉皮", "冰峰"], "district": "莲湖区", "address": "西安市莲湖区北院门 129 号", "businessHours": "08:00 - 22:00", "phone": "029-8727-0018", "coverColor": "#d48806", "coverTag": "西安小吃"},
+    {"id": "S019", "name": "大唐不夜城烧烤（大雁塔店）", "city": "西安", "category": "美食", "subCategory": "烧烤", "rating": 4.4, "reviewCount": 4300, "avgPrice": 96, "popularity": 34800, "tags": ["烤羊肉串", "烤茄子", "冰镇啤酒"], "district": "雁塔区", "address": "西安市雁塔区雁南一路 1 号", "businessHours": "16:00 - 次日 02:00", "phone": "029-8555-0019", "coverColor": "#d4380d", "coverTag": "烧烤"},
+    {"id": "S020", "name": "秦岭养生SPA（高新店）", "city": "西安", "category": "休闲娱乐", "subCategory": "SPA", "rating": 4.5, "reviewCount": 1800, "avgPrice": 218, "popularity": 25300, "tags": ["中式推拿", "药浴", "肩颈理疗"], "district": "高新区", "address": "西安市高新区科技路 33 号 6 层", "businessHours": "11:00 - 次日 01:00", "phone": "029-8833-0020", "coverColor": "#531dab", "coverTag": "SPA"},
 ]
 
 # ---------------------------------------------------------------- 酒店原始数据（10 家）
@@ -228,11 +238,53 @@ _HOTELS_RAW: List[Dict] = [
     {"id": "H008", "name": "成都高新金融城希尔顿欢朋酒店", "city": "成都", "star": 4, "rating": 4.5, "reviewCount": 2650, "minPrice": 458, "popularity": 24300, "district": "高新区", "address": "成都市高新区天府大道中段 666 号", "facilities": ["免费WiFi", "健身房", "会议室", "中西餐厅", "行李寄存"], "tags": ["商务出差", "金融城核心", "早餐丰富"], "intro": "位于金融城商务核心区，周边写字楼与餐饮聚集，客房配备办公桌与人体工学椅，适合商务出行。", "coverColor": "#36cfc9", "coverTag": "商务四星"},
     {"id": "H009", "name": "成都东站汉庭酒店", "city": "成都", "star": 3, "rating": 4.2, "reviewCount": 1840, "minPrice": 218, "popularity": 14600, "district": "成华区", "address": "成都市成华区邛崃山路 33 号", "facilities": ["免费WiFi", "24小时前台", "行李寄存"], "tags": ["近东站", "价格实惠", "干净整洁"], "intro": "距成都东站步行约 8 分钟，房型紧凑但整洁，适合高铁出行与短途停留，性价比突出。", "coverColor": "#95de64", "coverTag": "经济三星"},
     {"id": "H010", "name": "成都青城山六善酒店", "city": "成都", "star": 5, "rating": 4.8, "reviewCount": 2960, "minPrice": 1880, "popularity": 32400, "district": "都江堰市", "address": "成都市都江堰市青城山镇青城村 8 号", "facilities": ["免费WiFi", "免费停车场", "温泉", "室内泳池", "健身房", "中西餐厅"], "tags": ["山景度假", "温泉私汤", "避世静谧"], "intro": "坐落于青城山脚下，主打庭院式别墅与温泉私汤，环境清幽，适合度假静养与周末微度假出行。", "coverColor": "#237804", "coverTag": "度假五星"},
+    # ---- 重庆（3 家）----
+    {"id": "H011", "name": "重庆解放碑威斯汀酒店", "city": "重庆", "star": 5, "rating": 4.8, "reviewCount": 5210, "minPrice": 1080, "popularity": 46800, "district": "渝中区", "address": "重庆市渝中区民权路 77 号", "facilities": ["免费WiFi", "室内泳池", "健身房", "中西餐厅", "24小时前台", "接机服务"], "tags": ["解放碑核心", "江景客房", "商务首选"], "intro": "位于解放碑步行街核心，高层客房可俯瞰两江夜景，行政酒廊与会议设施完善，商务与观光皆宜。", "coverColor": "#0050b3", "coverTag": "江景五星"},
+    {"id": "H012", "name": "重庆洪崖洞亚朵酒店", "city": "重庆", "star": 4, "rating": 4.6, "reviewCount": 3120, "minPrice": 468, "popularity": 30500, "district": "渝中区", "address": "重庆市渝中区沧白路 56 号", "facilities": ["免费WiFi", "健身房", "24小时前台", "行李寄存", "中西餐厅"], "tags": ["洪崖洞旁", "夜景绝佳", "人文书房"], "intro": "步行可达洪崖洞与朝天门，酒店设有属地早餐与人文书房，夜景房型尤其受欢迎。", "coverColor": "#096dd9", "coverTag": "网红四星"},
+    {"id": "H013", "name": "重庆江北机场希尔顿花园酒店", "city": "重庆", "star": 4, "rating": 4.5, "reviewCount": 2450, "minPrice": 398, "popularity": 21300, "district": "渝北区", "address": "重庆市渝北区两路寸滩保税港区 5 号", "facilities": ["免费WiFi", "免费停车场", "接机服务", "24小时前台", "健身房"], "tags": ["近机场", "免费接送", "隔音好"], "intro": "距江北国际机场约 10 分钟车程，提供定时免费接送机，房间隔音处理到位，适合早晚航班与中转。", "coverColor": "#40a9ff", "coverTag": "机场四星"},
+    # ---- 西安（3 家）----
+    {"id": "H014", "name": "西安钟楼索菲特传奇酒店", "city": "西安", "star": 5, "rating": 4.8, "reviewCount": 4180, "minPrice": 1180, "popularity": 39600, "district": "碑林区", "address": "西安市碑林区东大街 319 号", "facilities": ["免费WiFi", "室内泳池", "健身房", "中西餐厅", "24小时前台", "洗衣服务"], "tags": ["钟楼地标", "法式服务", "城墙景观"], "intro": "紧邻钟楼与城墙，法式建筑风格，客房可远眺古城墙，服务细致，适合深度游与商务接待。", "coverColor": "#1d39c4", "coverTag": "地标五星"},
+    {"id": "H015", "name": "西安大唐不夜城亚朵酒店", "city": "西安", "star": 4, "rating": 4.7, "reviewCount": 3860, "minPrice": 528, "popularity": 33400, "district": "雁塔区", "address": "西安市雁塔区慈恩路 12 号", "facilities": ["免费WiFi", "健身房", "行李寄存", "中西餐厅", "会议室"], "tags": ["大雁塔旁", "唐风设计", "亲子友好"], "intro": "毗邻大雁塔与大唐不夜城，整体唐风设计，步行即达景区，家庭出行便利。", "coverColor": "#2f54eb", "coverTag": "景区四星"},
+    {"id": "H016", "name": "西安城墙根青旅酒店", "city": "西安", "star": 3, "rating": 4.3, "reviewCount": 1620, "minPrice": 258, "popularity": 15200, "district": "莲湖区", "address": "西安市莲湖区南门里书院门 8 号", "facilities": ["免费WiFi", "行李寄存", "24小时前台"], "tags": ["近城墙", "背包客", "价格实惠"], "intro": "紧邻南门城墙，青旅与快捷房型混合，公共区域有咖啡吧与图书角，适合背包客与短途停留。", "coverColor": "#95de64", "coverTag": "经济三星"},
+]
+
+# ---------------------------------------------------------------- 配图计划（供图片下载脚本使用）
+# 每个门店/酒店分配 1 张封面图 + 3 张详情页图库图，关键词按品类/星级归组；
+# 下载脚本按关键词到 Wikimedia Commons 检索并本地化到 frontend/public/images/。
+_SHOP_PHOTO_KEYWORDS: Dict[str, List[str]] = {
+    "火锅": ["sichuan hot pot", "hot pot restaurant", "hot pot ingredients", "chinese hotpot table"],
+    "川菜": ["sichuan cuisine", "mapo tofu", "chinese stir fried dish", "chinese restaurant table"],
+    "日料": ["ramen noodle soup", "japanese restaurant interior", "sushi platter", "japanese food"],
+    "咖啡": ["coffee shop interior", "latte art coffee", "espresso machine", "cheesecake dessert"],
+    "中餐": ["chinese food dishes", "chinese restaurant interior", "noodle soup bowl", "roast lamb dish"],
+    "东南亚菜": ["thai food", "tom yum soup", "pineapple fried rice", "thai curry"],
+    "小面": ["chongqing noodles", "chinese noodle bowl", "spicy noodle soup", "chinese street food"],
+    "江湖菜": ["chinese home style dishes", "spicy chinese food", "chinese restaurant table", "stir fried dishes"],
+    "泡馍": ["xian cuisine", "chinese lamb soup", "shaanxi food", "chinese bread soup"],
+    "小吃": ["chinese street food", "roujiamo", "xian muslim quarter food", "chinese snack food"],
+    "烧烤": ["chinese barbecue skewers", "bbq grill restaurant", "grilled meat skewers", "chinese night market"],
+    "SPA": ["massage spa", "spa treatment room", "foot massage", "spa interior"],
+    "密室": ["escape room", "puzzle room game", "escape game room", "mystery room"],
+    "KTV": ["karaoke room", "karaoke microphone", "ktv room interior", "nightclub interior"],
+    "咖啡休闲": ["coffee shop interior", "cafe table", "cappuccino coffee", "cozy cafe"],
+}
+
+_HOTEL_PHOTO_KEYWORDS: Dict[int, List[str]] = {
+    5: ["luxury hotel lobby", "hotel suite room", "hotel swimming pool", "hotel exterior night"],
+    4: ["hotel room interior", "hotel lobby reception", "hotel breakfast buffet", "hotel building exterior"],
+    3: ["budget hotel room", "hotel reception desk", "hotel corridor", "hotel exterior"],
+}
+
+_BANNER_PHOTO_KEYWORDS: List[str] = [
+    "chinese food festival",
+    "hotel resort swimming pool",
+    "massage spa relaxation",
 ]
 
 # ---------------------------------------------------------------- 组装完整数据集
 SHOPS: List[Dict] = []
 for _shop in _SHOPS_RAW:
+    _shop.setdefault("city", "成都")  # 早期数据未含城市字段，统一按成都处理
     _item = dict(_shop)
     _item["packages"] = _gen_packages(_shop)
     _item["comments"] = _gen_comments(_shop)
@@ -244,6 +296,37 @@ for _hotel in _HOTELS_RAW:
     _item["rooms"] = _gen_rooms(_hotel)
     _item["reviews"] = _gen_reviews(_hotel)
     HOTELS.append(_item)
+
+# 图片路径（本地静态资源，前后端分离下由前端 public 目录提供，断网可用）
+PHOTO_PLAN: Dict[str, Dict] = {}
+
+for _shop in SHOPS:
+    _kws = _SHOP_PHOTO_KEYWORDS.get(_shop["subCategory"], _SHOP_PHOTO_KEYWORDS["中餐"])
+    _shop["cover"] = f"/images/shops/{_shop['id']}.jpg"
+    _shop["gallery"] = [f"/images/shops/{_shop['id']}-{i}.jpg" for i in (1, 2, 3)]
+    PHOTO_PLAN[_shop["id"]] = {
+        "kind": "shop",
+        "keywords": _kws,
+        "paths": [_shop["cover"]] + _shop["gallery"],
+    }
+
+for _hotel in HOTELS:
+    _kws = _HOTEL_PHOTO_KEYWORDS.get(_hotel["star"], _HOTEL_PHOTO_KEYWORDS[3])
+    _hotel["cover"] = f"/images/hotels/{_hotel['id']}.jpg"
+    _hotel["gallery"] = [f"/images/hotels/{_hotel['id']}-{i}.jpg" for i in (1, 2, 3)]
+    PHOTO_PLAN[_hotel["id"]] = {
+        "kind": "hotel",
+        "keywords": _kws,
+        "paths": [_hotel["cover"]] + _hotel["gallery"],
+    }
+
+for _banner, _kw in zip(BANNERS, _BANNER_PHOTO_KEYWORDS):
+    _banner["image"] = f"/images/banners/{_banner['id']}.jpg"
+    PHOTO_PLAN[_banner["id"]] = {
+        "kind": "banner",
+        "keywords": [_kw, "chinese food", "travel hotel", "spa wellness"],
+        "paths": [_banner["image"]],
+    }
 
 # ---------------------------------------------------------------- 预置模拟订单（首次进入个人中心即有数据）
 _NOW = datetime.now()

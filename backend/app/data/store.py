@@ -38,6 +38,7 @@ def _brief_shop(shop: Dict) -> Dict:
     return {
         "id": shop["id"],
         "name": shop["name"],
+        "city": shop["city"],
         "category": shop["category"],
         "subCategory": shop["subCategory"],
         "rating": shop["rating"],
@@ -48,18 +49,20 @@ def _brief_shop(shop: Dict) -> Dict:
         "address": shop["address"],
         "coverColor": shop["coverColor"],
         "coverTag": shop["coverTag"],
+        "cover": shop.get("cover", ""),
         "packageCount": len(shop["packages"]),
     }
 
 
 def list_shops(
     keyword: str = "",
+    city: str = "",
     category: str = "",
     min_rating: Optional[float] = None,
     max_price: Optional[int] = None,
     sort_by: str = "popularity",
 ) -> List[Dict]:
-    """门店列表：支持关键词、品类、评分、人均价格筛选与人气/评分/价格排序。"""
+    """门店列表：支持关键词、城市、品类、评分、人均价格筛选与人气/评分/价格排序。"""
     result = list(_shops)
 
     if keyword:
@@ -72,6 +75,8 @@ def list_shops(
             or kw in s["subCategory"].lower()
             or kw in s["district"].lower()
         ]
+    if city:
+        result = [s for s in result if s["city"] == city]
     if category:
         result = [s for s in result if s["category"] == category]
     if min_rating is not None:
@@ -116,6 +121,7 @@ def _brief_hotel(hotel: Dict) -> Dict:
         "tags": hotel["tags"],
         "coverColor": hotel["coverColor"],
         "coverTag": hotel["coverTag"],
+        "cover": hotel.get("cover", ""),
         "roomCount": len(hotel["rooms"]),
     }
 
@@ -183,6 +189,15 @@ def list_facilities() -> List[str]:
 
 
 # ---------------------------------------------------------------- 查询：全局搜索
+def list_cities() -> List[str]:
+    """全部可选城市（门店与酒店共同覆盖），供前端城市切换器渲染。"""
+    cities: List[str] = []
+    for item in _shops + _hotels:
+        if item["city"] not in cities:
+            cities.append(item["city"])
+    return cities
+
+
 def search(keyword: str) -> Dict:
     """关键词搜索：同时匹配门店与酒店。"""
     return {
@@ -295,6 +310,11 @@ def stats() -> Dict:
         "shopsFood": len([s for s in shops if s["category"] == "美食"]),
         "shopsLeisure": len([s for s in shops if s["category"] == "休闲娱乐"]),
         "hotels": len(hotels),
+        "cities": len(list_cities()),
+        "cityList": list_cities(),
+        "shopsByCity": {c: len([s for s in shops if s["city"] == c]) for c in list_cities()},
+        "hotelsByCity": {c: len([h for h in hotels if h["city"] == c]) for c in list_cities()},
+        "withPhoto": len([s for s in shops if s.get("cover")]) + len([h for h in hotels if h.get("cover")]),
         "packagesTotal": sum(shop_pkg),
         "packagesMinPerShop": min(shop_pkg),
         "roomsTotal": sum(hotel_room),

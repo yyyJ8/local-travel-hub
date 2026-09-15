@@ -67,7 +67,11 @@ cheap = call("/api/shops" + q({"maxPrice": 90}))["data"]
 top = call("/api/shops" + q({"minRating": 4.6}))["data"]
 by_rating = call("/api/shops" + q({"sortBy": "rating"}))["data"]["items"]
 by_price = call("/api/shops" + q({"sortBy": "priceAsc"}))["data"]["items"]
-check("I3 门店列表返回全部 12 家", base["total"] == 12, f"实际 {base['total']}")
+city_cq = call("/api/shops" + q({"city": "重庆"}))["data"]
+city_xa = call("/api/shops" + q({"city": "西安"}))["data"]
+check("I3 门店列表返回全部 20 家", base["total"] == 20, f"实际 {base['total']}")
+check("I3 城市筛选生效", 0 < city_cq["total"] < base["total"] and 0 < city_xa["total"] < base["total"],
+      f"重庆 {city_cq['total']} 家 / 西安 {city_xa['total']} 家")
 check("I3 品类筛选生效", food["total"] + leisure["total"] == base["total"],
       f"美食 {food['total']} + 休闲娱乐 {leisure['total']} = {base['total']}")
 check("I3 人均价格筛选生效", 0 < cheap["total"] < base["total"], f"人均≤90 -> {cheap['total']} 家")
@@ -95,7 +99,8 @@ fac = call("/api/hotels" + q([("facilities", "室内泳池"), ("facilities", "�
 cal = call("/api/hotels" + q({"city": "成都", "checkIn": "2026-10-01", "checkOut": "2026-10-04"}))["data"]
 hprice = call("/api/hotels" + q({"sortBy": "priceAsc"}))["data"]["items"]
 hrating = call("/api/hotels" + q({"sortBy": "rating"}))["data"]["items"]
-check("I5 酒店列表返回全部 10 家", hbase["total"] == 10, f"实际 {hbase['total']}")
+check("I5 酒店列表返回全部 16 家", hbase["total"] == 16, f"实际 {hbase['total']}")
+check("I5 酒店城市筛选生效", 0 < cal["total"] < hbase["total"], f"成都 -> {cal['total']} 家 / 全部 {hbase['total']} 家")
 check("I5 星级筛选生效", 0 < star5["total"] < hbase["total"], f"五星 -> {star5['total']} 家")
 check("I5 价格区间筛选生效", 0 < price["total"] < hbase["total"], f"300~600 -> {price['total']} 家")
 check("I5 设施多选筛选生效", 0 < fac["total"] < hbase["total"], f"泳池+健身房 -> {fac['total']} 家")

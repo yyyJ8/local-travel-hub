@@ -24,6 +24,7 @@ class Banner(BaseModel):
     subtitle: str
     colorFrom: str = Field(description="渐变起始色")
     colorTo: str = Field(description="渐变结束色")
+    image: str = Field(default="", description="轮播配图路径（本地静态资源）")
     targetType: str = Field(description="跳转类型：shop / hotel")
     targetId: str = Field(default="", description="跳转目标 ID，为空表示跳列表页")
 
@@ -63,6 +64,7 @@ class Shop(BaseModel):
     """本地生活门店（美食 / 休闲娱乐）"""
     id: str
     name: str
+    city: str = Field(default="成都", description="所属城市：成都 / 重庆 / 西安")
     category: str = Field(description="一级品类：美食 / 休闲娱乐")
     subCategory: str = Field(description="二级品类：火锅 / 川菜 / SPA / 密室 ...")
     rating: float
@@ -74,8 +76,10 @@ class Shop(BaseModel):
     address: str
     businessHours: str
     phone: str
-    coverColor: str = Field(description="封面占位图主色")
+    coverColor: str = Field(description="封面占位图主色（图片加载失败时的回退底色）")
     coverTag: str = Field(description="封面占位图文字标签")
+    cover: str = Field(default="", description="封面图路径（本地静态资源）")
+    gallery: List[str] = Field(default=[], description="详情页图库（本地静态资源）")
     packages: List[Package] = []
     comments: List[Comment] = []
 
@@ -123,6 +127,8 @@ class Hotel(BaseModel):
     intro: str = Field(description="酒店图文介绍文字")
     coverColor: str
     coverTag: str
+    cover: str = Field(default="", description="封面图路径（本地静态资源）")
+    gallery: List[str] = Field(default=[], description="酒店图库（本地静态资源）")
     rooms: List[RoomType] = []
     reviews: List[HotelReview] = []
 

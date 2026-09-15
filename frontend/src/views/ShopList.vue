@@ -18,6 +18,7 @@ const CATEGORIES = [
   { label: '美食', value: '美食' },
   { label: '休闲娱乐', value: '休闲娱乐' }
 ]
+const CITIES = ['全部', '成都', '重庆', '西安']
 const SORTS = [
   { label: '人气优先', value: 'popularity' },
   { label: '评分优先', value: 'rating' },
@@ -37,6 +38,7 @@ const PRICES = [
 ]
 
 const query = reactive({
+  city: '成都',
   category: String(route.query.category || ''),
   minRating: '',
   maxPrice: '',
@@ -50,7 +52,11 @@ const loading = ref(false)
 async function load() {
   loading.value = true
   try {
-    const params = { category: query.category, sortBy: query.sortBy }
+    const params = {
+      city: query.city === '全部' ? '' : query.city,
+      category: query.category,
+      sortBy: query.sortBy
+    }
     // 空串表示「不限」：Element Plus 的 el-option 不接受 null 作为 value，故用空串哨兵值
     if (query.minRating !== '') params.minRating = query.minRating
     if (query.maxPrice !== '') params.maxPrice = query.maxPrice
@@ -63,13 +69,14 @@ async function load() {
 }
 
 function reset() {
+  query.city = '成都'
   query.category = ''
   query.minRating = ''
   query.maxPrice = ''
   query.sortBy = 'popularity'
 }
 
-watch(() => [query.category, query.minRating, query.maxPrice, query.sortBy], load)
+watch(() => [query.city, query.category, query.minRating, query.maxPrice, query.sortBy], load)
 watch(() => route.query.category, (v) => { query.category = String(v || '') })
 onMounted(load)
 </script>
@@ -80,6 +87,16 @@ onMounted(load)
 
     <!-- 筛选与排序 -->
     <div class="filter-bar">
+      <!-- 城市切换（多城市演示：成都 / 重庆 / 西安） -->
+      <div class="chips city-row">
+        <span
+          v-for="c in CITIES"
+          :key="c"
+          class="chip-btn city-btn"
+          :class="{ on: query.city === c }"
+          @click="query.city = c"
+        >{{ c }}</span>
+      </div>
       <div class="chips">
         <span
           v-for="c in CATEGORIES"
@@ -105,7 +122,9 @@ onMounted(load)
       </div>
     </div>
 
-    <div class="count-line">符合条件的门店共 <b>{{ total }}</b> 家</div>
+    <div class="count-line">
+      {{ query.city === '全部' ? '全部城市' : query.city }} · 符合条件的门店共 <b>{{ total }}</b> 家
+    </div>
 
     <div v-if="loading" style="padding: 16px">
       <el-skeleton :rows="6" animated />
@@ -131,6 +150,14 @@ onMounted(load)
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+}
+.city-row {
+  padding-bottom: 7px;
+  margin-bottom: 7px;
+  border-bottom: 1px dashed var(--border-color);
+}
+.city-btn {
+  font-weight: 600;
 }
 .chip-btn {
   font-size: 13px;

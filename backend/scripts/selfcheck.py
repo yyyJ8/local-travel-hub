@@ -33,17 +33,24 @@ for k, v in st.items():
     print(f"  {k:22} = {v}")
 print("-" * 72)
 
-check("门店数量 ≥ 12", st["shops"] >= 12, f"实际 {st['shops']}")
-check("酒店数量 ≥ 10", st["hotels"] >= 10, f"实际 {st['hotels']}")
+check("门店数量 ≥ 20", st["shops"] >= 20, f"实际 {st['shops']}")
+check("酒店数量 ≥ 16", st["hotels"] >= 16, f"实际 {st['hotels']}")
+check("覆盖城市 = 3（成都/重庆/西安）", st["cities"] == 3, f"实际 {st['cities']}：{'、'.join(st['cityList'])}")
 check("套餐 ≥ 3/门店", st["packagesMinPerShop"] >= 3, f"最少 {st['packagesMinPerShop']}")
 check("房型 ≥ 3/酒店", st["roomsMinPerHotel"] >= 3, f"最少 {st['roomsMinPerHotel']}")
-check("评论 ≥ 5/门店", st["commentsMinPerShop"] >= 5, f"最少 {st['commentsMinPerShop']}")
-check("评价 ≥ 5/酒店", st["reviewsMinPerHotel"] >= 5, f"最少 {st['reviewsMinPerHotel']}")
+check("评论 ≥ 10/门店", st["commentsMinPerShop"] >= 10, f"最少 {st['commentsMinPerShop']}")
+check("评价 ≥ 10/酒店", st["reviewsMinPerHotel"] >= 10, f"最少 {st['reviewsMinPerHotel']}")
+check("全部门店与酒店均已配置图片路径", st["withPhoto"] == st["shops"] + st["hotels"],
+      f"{st['withPhoto']} / {st['shops'] + st['hotels']}")
 check("预置订单 2~3 条", 2 <= st["orders"] <= 3, f"实际 {st['orders']}")
 check("首页轮播 ≥ 3", st["banners"] >= 3, f"实际 {st['banners']}")
 check("分类入口 = 3（美食/休闲娱乐/酒店）", st["categories"] == 3, f"实际 {st['categories']}")
 check("美食与休闲娱乐门店均存在", st["shopsFood"] > 0 and st["shopsLeisure"] > 0,
       f"美食 {st['shopsFood']} / 休闲娱乐 {st['shopsLeisure']}")
+check("各城市门店分布均衡（每城 ≥ 4 家）", all(v >= 4 for v in st["shopsByCity"].values()),
+      "、".join(f"{k} {v} 家" for k, v in st["shopsByCity"].items()))
+check("各城市酒店分布均衡（每城 ≥ 3 家）", all(v >= 3 for v in st["hotelsByCity"].values()),
+      "、".join(f"{k} {v} 家" for k, v in st["hotelsByCity"].items()))
 
 print("-" * 72)
 print("筛选与排序行为")
@@ -61,6 +68,11 @@ check("评分排序生效", all(by_rating[i]["rating"] >= by_rating[i + 1]["rati
       f"首位 {by_rating[0]['name']} {by_rating[0]['rating']}")
 check("价格升序排序生效", all(by_price[i]["avgPrice"] <= by_price[i + 1]["avgPrice"] for i in range(len(by_price) - 1)),
       f"首位 {by_price[0]['name']} 人均{by_price[0]['avgPrice']}")
+
+cq = store.list_shops(city="重庆")
+xa = store.list_shops(city="西安")
+check("门店城市筛选生效", 0 < len(cq) < len(all_shops) and 0 < len(xa) < len(all_shops),
+      f"重庆 {len(cq)} 家 / 西安 {len(xa)} 家 / 合计 {len(all_shops)} 家")
 
 star5 = store.list_hotels(star=5)
 by_hotel_price = store.list_hotels(sort_by="priceAsc")

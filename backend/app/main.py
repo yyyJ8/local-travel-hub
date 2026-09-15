@@ -74,6 +74,11 @@ def meta_stats():
     return ok(store.stats())
 
 
+@app.get("/api/meta/cities", tags=["系统"], summary="可选城市列表（供城市切换器渲染）")
+def meta_cities():
+    return ok(store.list_cities())
+
+
 # ---- 业务模块路由（前后端分离：前端通过 /api/** 调用）----
 app.include_router(home.router)     # I1 首页推荐
 app.include_router(search.router)   # I2 关键词搜索
