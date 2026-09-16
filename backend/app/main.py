@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import home, hotels, orders, search, shops
+from app.api import auth, home, hotels, orders, search, shops
 from app.core.response import ok
 from app.data import store
 
@@ -85,3 +85,4 @@ app.include_router(search.router)   # I2 关键词搜索
 app.include_router(shops.router)    # I3 门店列表 / I4 门店详情
 app.include_router(hotels.router)   # I5 酒店列表 / I6 酒店详情
 app.include_router(orders.router)   # I7 模拟下单 / I8 订单列表 / I9 订单详情 / I10 模拟取消
+app.include_router(auth.router)     # A1 注册 / A2 登录 / A3 注销 / A4 当前用户

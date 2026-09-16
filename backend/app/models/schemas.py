@@ -171,3 +171,60 @@ class OrderListResponse(BaseModel):
     """订单列表返回结构说明"""
     total: int
     items: List[Order]
+
+
+# ---------------------------- 账号与会话（演示级） ----------------------------
+class User(BaseModel):
+    """用户（内存用户表）
+
+    原型说明：password 为明文，仅用于课程演示；生产版本必须改为加盐哈希（如 bcrypt）。
+    """
+    id: str
+    username: str
+    password: str = Field(description="明文密码，仅演示用")
+    role: str = Field(description="角色：user 普通用户 / merchant 商家 / admin 管理员")
+    nickname: str = ""
+    phone: str = ""
+    avatarColor: str = "#ff6633"
+    status: str = Field(default="正常", description="账号状态：正常 / 停用")
+    createdAt: str = ""
+    merchantId: str = Field(default="", description="商家绑定的门店或酒店 ID，其他角色为空")
+
+
+class UserPublic(BaseModel):
+    """对外返回的用户信息（**不含密码**）"""
+    id: str
+    username: str
+    role: str
+    nickname: str = ""
+    phone: str = ""
+    avatarColor: str = "#ff6633"
+    status: str = "正常"
+    merchantId: str = ""
+
+
+class RegisterRequest(BaseModel):
+    """注册请求（仅开放普通用户角色）"""
+    username: str = Field(description="用户名，3~20 位，不可重复")
+    password: str = Field(description="密码，至少 6 位（明文存储，仅演示）")
+    nickname: str = Field(default="", description="昵称，留空则默认与用户名相同")
+    phone: str = Field(default="", description="手机号，可留空")
+
+
+class LoginRequest(BaseModel):
+    """登录请求"""
+    username: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    """登录响应：令牌 + 用户信息（前端存 token，后续请求带在 Authorization 头）"""
+    token: str
+    user: UserPublic
+
+
+class Session(BaseModel):
+    """会话（内存字典，服务重启即全部失效）"""
+    token: str
+    userId: str
+    createdAt: str

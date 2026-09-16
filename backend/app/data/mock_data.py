@@ -401,3 +401,47 @@ def _preset_orders() -> List[Dict]:
 
 
 PRESET_ORDERS: List[Dict] = _preset_orders()
+
+# ---------------------------------------------------------------- 演示账号（内存用户表）
+# 原型说明：
+# 1. 密码为**明文存储**，仅用于课程演示，生产版本必须改为加盐哈希；
+# 2. 注册接口只开放「普通用户」角色，商家与管理员账号由以下预置数据提供；
+# 3. 用户表同样存放于内存，服务重启后自注册账号全部丢失，预置账号恢复原状。
+USERS: List[Dict] = [
+    {
+        "id": "U001",
+        "username": "demo",
+        "password": "123456",
+        "role": "user",
+        "nickname": "张三",
+        "phone": "13800001111",
+        "avatarColor": "#ff6633",
+        "status": "正常",
+        "createdAt": (_NOW - timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S"),
+        "merchantId": "",
+    },
+    {
+        "id": "U002",
+        "username": "shangjia",
+        "password": "123456",
+        "role": "merchant",
+        "nickname": "蜀大侠火锅 · 店长",
+        "phone": "13800002222",
+        "avatarColor": "#fa541c",
+        "status": "正常",
+        "createdAt": (_NOW - timedelta(days=60)).strftime("%Y-%m-%d %H:%M:%S"),
+        "merchantId": "S001",  # 商家绑定的门店（仅能看到自己的门店与订单）
+    },
+    {
+        "id": "U003",
+        "username": "admin",
+        "password": "123456",
+        "role": "admin",
+        "nickname": "平台管理员",
+        "phone": "13800003333",
+        "avatarColor": "#722ed1",
+        "status": "正常",
+        "createdAt": (_NOW - timedelta(days=90)).strftime("%Y-%m-%d %H:%M:%S"),
+        "merchantId": "",
+    },
+]

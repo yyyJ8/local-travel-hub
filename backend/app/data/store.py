@@ -9,7 +9,8 @@ from datetime import datetime
 from itertools import count
 from typing import Dict, List, Optional
 
-from app.data.mock_data import BANNERS, CATEGORIES, HOTELS, PRESET_ORDERS, SHOPS
+from app.core.auth import new_token
+from app.data.mock_data import BANNERS, CATEGORIES, HOTELS, PRESET_ORDERS, SHOPS, USERS
 
 # ---------------------------------------------------------------- 内存集合（模拟数据表）
 _shops: List[Dict] = [dict(item) for item in SHOPS]
@@ -327,4 +328,124 @@ def stats() -> Dict:
         "orders": len(_orders),
         "banners": len(BANNERS),
         "categories": len(CATEGORIES),
+        "users": len(_users),
+        "usersByRole": {
+            r: len([u for u in _users if u["role"] == r]) for r in ("user", "merchant", "admin")
+        },
+        "sessions": len(_sessions),
+    }
+
+
+# ---------------------------------------------------------------- 账号与会话（内存用户表）
+_users: List[Dict] = [dict(u) for u in USERS]
+_sessions: Dict[str, Dict] = {}
+_user_seq = count(101)
+
+# 对外返回的用户字段（**绝不返回 password**）
+_PUBLIC_FIELDS = ("id", "username", "role", "nickname", "phone", "avatarColor", "status", "merchantId")
+
+
+def public_user(user: Dict) -> Dict:
+    """裁剪用户字段：去掉密码等敏感信息。"""
+    return {k: user.get(k, "") for k in _PUBLIC_FIELDS}
+
+
+def list_users() -> List[Dict]:
+    return [public_user(u) for u in _users]
+
+
+def get_user(user_id: str) -> Optional[Dict]:
+    for u in _users:
+        if u["id"] == user_id:
+            return u
+    return None
+
+
+def get_user_by_username(username: str) -> Optional[Dict]:
+    name = (username or "").strip().lower()
+    for u in _users:
+        if u["username"].lower() == name:
+            return u
+    return None
+
+
+def register_user(username: str, password: str, nickname: str = "", phone: str = ""):
+    """注册普通用户（注册只开放 user 角色）。返回 (user, 错误信息)。"""
+    name = (username or "").strip()
+    if not 3 <= len(name) <= 20:
+        return None, "用户名需为 3~20 位"
+    if len(password or "") < 6:
+        return None, "密码至少 6 位"
+    if get_user_by_username(name):
+        return None, "用户名已存在"
+    if phone and (not phone.isdigit() or len(phone) != 11):
+        return None, "手机号需为 11 位数字"
+
+    user = {
+        "id": f"U{next(_user_seq):03d}",
+        "username": name,
+        "password": password,  # ★ 明文存储，仅课程演示
+        "role": "user",
+        "nickname": (nickname or "").strip() or name,
+        "phone": phone or "",
+        "avatarColor": "#409eff",
+        "status": "正常",
+        "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "merchantId": "",
+    }
+    _users.append(user)  # ★ 追加至内存用户表：服务重启后自注册账号丢失
+    return user, ""
+
+
+def authenticate(username: str, password: str):
+    """登录校验。返回 (user, 错误信息)。"""
+    user = get_user_by_username(username)
+    if not user or user["password"] != (password or ""):
+        return None, "用户名或密码错误"
+    if user["status"] != "正常":
+        return None, "账号已被停用，请联系管理员"
+    return user, ""
+
+
+def create_session(user_id: str) -> str:
+    """创建会话并返回令牌（内存字典，重启失效）。"""
+    token = new_token()
+    _sessions[token] = {
+        "token": token,
+        "userId": user_id,
+        "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    return token
+
+
+def get_user_by_token(token: str) -> Optional[Dict]:
+    session = _sessions.get(token or "")
+    if not session:
+        return None
+    return get_user(session["userId"])
+
+
+def delete_session(token: str) -> bool:
+    return _sessions.pop(token or "", None) is not None
+
+
+def set_user_status(user_id: str, status: str) -> Optional[Dict]:
+    """停用 / 启用账号；停用时立即失效该用户的所有会话。"""
+    user = get_user(user_id)
+    if not user:
+        return None
+    user["status"] = status
+    if status != "正常":
+        for tk in [t for t, s in _sessions.items() if s["userId"] == user_id]:
+            _sessions.pop(tk, None)
+    return user
+
+
+def user_stats() -> Dict:
+    return {
+        "users": len(_users),
+        "usersByRole": {
+            r: len([u for u in _users if u["role"] == r]) for r in ("user", "merchant", "admin")
+        },
+        "activeSessions": len(_sessions),
     }
