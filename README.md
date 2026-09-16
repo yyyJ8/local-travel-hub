@@ -7,11 +7,11 @@
 
 ## 一、环境要求
 
-| 项目 | 本机实测版本 | 说明 |
+| 项目 | 版本要求 | 说明 |
 | --- | --- | --- |
-| Python | 3.12.2 | 基础解释器：`C:\Users\王一龙\AppData\Local\Programs\Python\Python312\python.exe` |
-| Node.js | v26.4.0 | `D:\wxdev\node\node.exe`，全机唯一安装 |
-| npm | 11.17.0 | 随 Node 提供 |
+| Python | 3.12 及以上 | 仅后端使用；依赖安装在项目内虚拟环境 `.venv` |
+| Node.js | 20 LTS 及以上（本项目在 26.x 上实测通过） | 前端构建与开发服务器 |
+| npm | 随 Node.js 一并提供 | 前端依赖管理 |
 
 > 注意：系统 PATH 中的 `python` 是 Microsoft Store 的 0 字节占位符，**不要使用**，请一律使用项目虚拟环境内的解释器。
 
@@ -20,14 +20,17 @@
 ## 二、首次准备（已执行过，可跳过）
 
 ```powershell
+# 以下命令均在项目根目录下执行
+
 # 1. 创建虚拟环境（仅后端使用；前端用 npm 管理依赖）
-C:\Users\王一龙\AppData\Local\Programs\Python\Python312\python.exe -m venv D:\Ctrip\.venv
+#    若系统 PATH 中的 python 不可用，请换成你本机 Python 解释器的完整路径
+python -m venv .venv
 
 # 2. 安装后端依赖
-D:\Ctrip\.venv\Scripts\python.exe -m pip install -r D:\Ctrip\requirements.txt
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 
 # 3. 安装前端依赖
-cd D:\Ctrip\frontend
+cd frontend
 npm install
 ```
 
@@ -86,7 +89,7 @@ npm run dev
 
 ## 六、运行环境说明（Node 26 的两个坑与规避方式，已实测）
 
-本机 Node.js 为 **v26.4.0**（全机唯一安装、无 nvm）。在两个环节遇到 Windows 文件监听问题，均已规避：
+在 Node.js 26.x 环境下实测遇到两个 Windows 文件监听问题，均已规避：
 
 | 现象 | 原因 | 规避方式 |
 | --- | --- | --- |

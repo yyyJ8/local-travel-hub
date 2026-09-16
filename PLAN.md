@@ -32,8 +32,8 @@
 **已完成操作**
 
 1. 起草并冻结需求基线 → `D:\Ctrip\REQUIREMENTS.md`
-2. 探测本机环境：Node.js `v26.4.0`（全机唯一、无 nvm）、npm `11.17.0`
-3. 定位真实 Python 解释器：`C:\Users\王一龙\AppData\Local\Programs\Python\Python312\python.exe`（3.12.2）
+2. 确认开发环境：Node.js 20 LTS 及以上（本项目为 v26.4.0）、npm（本项目为 11.17.0）
+3. 确认 Python 解释器可用：Python 3.12 及以上（本项目为 3.12.2）
    - ⚠️ 系统 PATH 里的 `python` 是 Microsoft Store 的 **0 字节占位符**，不可用，全程禁用
 4. 创建虚拟环境：`D:\Ctrip\.venv`
 5. 安装后端依赖并 import 验证：fastapi 0.141.1 / uvicorn 0.53.0 / pydantic 2.13.5

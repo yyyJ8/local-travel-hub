@@ -198,15 +198,15 @@
 | 项目 | 状态 |
 | --- | --- |
 | 工作目录 | `D:\Ctrip`（初始为空目录） |
-| Node.js | **v26.4.0（本机实测，经 `node --version`、`process.versions.node`、二进制文件版本三重校验）**，可执行文件 `D:\wxdev\node\node.exe`；全机仅此一处安装、无 nvm 版本管理器 |
-| npm | `11.17.0`（随上述 Node 提供） |
-| Python | 基础解释器 `C:\Users\王一龙\AppData\Local\Programs\Python\Python312\python.exe`（**3.12.2**）；注意系统 PATH 中的 `python` 是 Microsoft Store 的 0 字节占位符，不是真解释器 |
+| Node.js | 20 LTS 及以上（本项目在 **v26.4.0** 上完成开发与实测） |
+| npm | 随 Node.js 一并提供（本项目为 11.17.0） |
+| Python | 3.12 及以上（本项目为 **3.12.2**）；注意系统 PATH 中的 `python` 可能是 Microsoft Store 的 0 字节占位符，不是真解释器 |
 | Python 虚拟环境 | 已在项目内创建：`D:\Ctrip\.venv`（Python 3.12.2），**仅用于后端依赖隔离**，前端不使用 |
 | 后端依赖 | 已安装到 `.venv` 并 import 验证通过：fastapi 0.141.1、uvicorn 0.53.0、pydantic 2.13.5（清单见 `requirements.txt`） |
 | 前端依赖 | 待创建工程后由 npm 安装（Vue 3 + Vite + Element Plus + Vue Router + Axios） |
 | 需求冻结 | 本文件 `REQUIREMENTS.md` |
 
-> **Node 版本风险与降级预案（可写入报告的运行环境说明）**：本机为 Node.js v26.4.0（较新的偶数版本线）。若搭建 Vite 工程时出现原生依赖（esbuild / rollup）编译或兼容告警，将回退至 Node.js 20 LTS 或 22 LTS 并记录说明，不影响原型功能与架构设计。
+> **Node 版本风险与降级预案（可写入报告的运行环境说明）**：本项目在 Node.js v26.4.0（较新的偶数版本线）下开发。若搭建 Vite 工程时出现原生依赖（esbuild / rollup）编译或兼容告警，将回退至 Node.js 20 LTS 或 22 LTS 并记录说明，不影响原型功能与架构设计。
 
 ---
 
