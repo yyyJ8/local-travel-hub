@@ -22,6 +22,7 @@ import ShopDetail from '../src/views/ShopDetail.vue'
 import HotelList from '../src/views/HotelList.vue'
 import HotelDetail from '../src/views/HotelDetail.vue'
 import Profile from '../src/views/Profile.vue'
+import { useAuth } from '../src/composables/useAuth'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -143,9 +144,15 @@ describe('阶段7 旅行住宿模块', () => {
   })
 })
 
-describe('阶段8 个人中心', () => {
+describe('阶段8 个人中心（登录后按用户展示）', () => {
   it('订单列表：渲染订单号、状态、金额，且仅「待使用」订单显示取消按钮', async () => {
     getOrders.mockResolvedValue(ordersFixture)
+    const auth = useAuth()
+    auth.state.token = 'test-token'
+    auth.state.user = {
+      id: 'U001', username: 'demo', role: 'user', nickname: '张三',
+      phone: '13800001111', avatarColor: '#ff6633', status: '正常', merchantId: ''
+    }
     const { wrapper } = await mountView(Profile, '/profile')
     await flush()
     const text = wrapper.text()
@@ -156,10 +163,23 @@ describe('阶段8 个人中心', () => {
     expect(text).toContain('已取消')
     expect(text).toContain('¥474')
     expect(text).toContain('¥2560')
-    expect(text).toContain('演示用户')
+    // 顶部展示当前登录用户与角色，并提供退出入口
+    expect(text).toContain('张三')
+    expect(text).toContain('普通用户')
+    expect(text).toContain('退出登录')
     // 3 条订单中 2 条待使用 → 2 个「模拟取消预约」按钮
     const danger = wrapper.findAll('.el-button--danger')
     expect(danger.length).toBe(2)
     expect(danger[0].text()).toContain('模拟取消预约')
+  })
+
+  it('未登录会话下不崩溃（真实环境由路由守卫跳转登录页）', async () => {
+    getOrders.mockResolvedValue({ total: 0, items: [] })
+    const auth = useAuth()
+    auth.state.token = ''
+    auth.state.user = null
+    const { wrapper } = await mountView(Profile, '/profile')
+    await flush()
+    expect(wrapper.text()).toContain('未登录')
   })
 })

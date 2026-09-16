@@ -80,6 +80,7 @@ class Shop(BaseModel):
     coverTag: str = Field(description="封面占位图文字标签")
     cover: str = Field(default="", description="封面图路径（本地静态资源）")
     gallery: List[str] = Field(default=[], description="详情页图库（本地静态资源）")
+    merchantId: str = Field(default="", description="所属商家 ID，空串表示平台自营")
     packages: List[Package] = []
     comments: List[Comment] = []
 
@@ -129,6 +130,7 @@ class Hotel(BaseModel):
     coverTag: str
     cover: str = Field(default="", description="封面图路径（本地静态资源）")
     gallery: List[str] = Field(default=[], description="酒店图库（本地静态资源）")
+    merchantId: str = Field(default="", description="所属商家 ID，空串表示平台自营")
     rooms: List[RoomType] = []
     reviews: List[HotelReview] = []
 
@@ -149,6 +151,7 @@ class OrderCreateRequest(BaseModel):
 class Order(BaseModel):
     """模拟预约订单（仅存于内存集合）"""
     orderNo: str
+    userId: str = Field(default="", description="订单归属用户 ID（原型无登录时为空）")
     type: str
     targetId: str
     targetName: str
@@ -228,3 +231,14 @@ class Session(BaseModel):
     token: str
     userId: str
     createdAt: str
+
+
+class MerchantProfileUpdate(BaseModel):
+    """商家可维护的信息（原型只开放两个字段，避免引入一批可写接口）"""
+    businessHours: str = Field(default="", description="门店营业时间，如 11:00 - 次日 02:00")
+    intro: str = Field(default="", description="酒店简介 / 图文介绍")
+
+
+class UserStatusUpdate(BaseModel):
+    """管理员停用 / 启用账号"""
+    status: str = Field(description="目标状态：正常 / 停用")

@@ -16,14 +16,19 @@ BASE = "http://127.0.0.1:8000"
 results = []
 
 
-def call(path, method="GET", body=None):
+def call(path, method="GET", body=None, token=""):
     url = BASE + path
     data = json.dumps(body).encode("utf-8") if body is not None else None
     req = urllib.request.Request(url, data=data, method=method)
     if data:
         req.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        return {"code": exc.code, "message": f"HTTP {exc.code}", "data": None}
 
 
 def check(name, condition, detail=""):
@@ -124,38 +129,67 @@ fac_list = call("/api/hotels/facilities")["data"]
 check("设施选项接口可用", isinstance(fac_list, list) and len(fac_list) >= 6, f"{len(fac_list)} 项")
 
 print("-" * 74)
-print("阶段8：写接口与订单闭环 I7~I10")
+print("阶段8：写接口与订单闭环 I7~I10（登录后按用户归属）")
 print("-" * 74)
 try:
-    before = call("/api/orders")["data"]
-    check("I8 订单列表可用（含预置订单）", before["total"] >= 3, f"初始 {before['total']} 条")
+    # ---- 未登录访问必须被拒绝（401）----
+    anon = call("/api/orders")
+    check("I8 未登录访问订单列表被拒绝（401）", anon.get("code") == 401, anon.get("message"))
+
+    # ---- 登录 demo 账号（预置普通用户，名下有 2 条预置订单）----
+    login = call("/api/auth/login", method="POST", body={"username": "demo", "password": "123456"})
+    TOKEN = (login.get("data") or {}).get("token", "")
+    check("登录 demo 账号成功并取得令牌", bool(TOKEN), f"角色 {(login.get('data') or {}).get('user', {}).get('role')}")
+
+    mine = call("/api/orders", token=TOKEN)["data"]
+    check("I8 普通用户只看到自己的订单",
+          mine["total"] >= 2 and all(o["userId"] == "U001" for o in mine["items"]),
+          f"demo 名下 {mine['total']} 条，全部归属 U001（预置 2 条 + 之前自检运行产生的订单）")
+    check("I8 看不到其他用户的订单",
+          all(o["orderNo"] != "ORD1003" and not o["orderNo"].endswith("1003") for o in mine["items"]),
+          "lisi 的订单未出现在 demo 列表中")
+
+    before = mine
 
     body = {"type": "shop", "targetId": "S001", "itemId": "S001-P02", "name": "答辩演示",
             "phone": "13800008888", "bookTime": "2026-10-08", "count": 2}
-    created = call("/api/orders", method="POST", body=body)
+    created = call("/api/orders", method="POST", body=body, token=TOKEN)
     check("I7 模拟下单返回成功与订单号", created.get("code") == 0 and created["data"].get("orderNo"),
           f"订单号 {created.get('data', {}).get('orderNo')}")
     order_no = created["data"]["orderNo"]
+    check("I7 新订单归属当前登录用户", created["data"].get("userId") == "U001", created["data"].get("userId"))
 
-    after = call("/api/orders")["data"]
+    after = call("/api/orders", token=TOKEN)["data"]
     check("I7 下单后订单追加至内存集合", after["total"] == before["total"] + 1,
           f"{before['total']} -> {after['total']}")
 
-    detail = call(f"/api/orders/{order_no}")["data"]
+    detail = call(f"/api/orders/{order_no}", token=TOKEN)["data"]
     check("I9 订单详情返回完整字段", detail["orderNo"] == order_no and detail["status"] == "待使用",
           f"{detail['targetName']} / {detail['itemName']} / ¥{detail['amount']}")
 
     hbody = {"type": "hotel", "targetId": "H001", "itemId": "H001-R01", "name": "答辩演示",
              "phone": "13800008888", "bookTime": "2026-10-08", "checkOut": "2026-10-10", "count": 1}
-    hcreated = call("/api/orders", method="POST", body=hbody)["data"]
+    hcreated = call("/api/orders", method="POST", body=hbody, token=TOKEN)["data"]
     check("I7 酒店订单自动计算晚数与总价", hcreated["nights"] == 2 and hcreated["amount"] > 0,
           f"{hcreated['nights']} 晚 / ¥{hcreated['amount']}")
 
-    cancelled = call(f"/api/orders/{order_no}/cancel", method="POST")["data"]
+    # ---- 越权：用 lisi 账号访问 demo 的订单必须被拒绝（403）----
+    lisi = call("/api/auth/login", method="POST", body={"username": "lisi", "password": "123456"})
+    LISI = (lisi.get("data") or {}).get("token", "")
+    check("lisi 账号可登录", bool(LISI))
+    other = call(f"/api/orders/{order_no}", token=LISI)
+    check("越权查看他人订单被拒绝（403）", other.get("code") == 403, other.get("message"))
+    other_cancel = call(f"/api/orders/{order_no}/cancel", method="POST", token=LISI)
+    check("越权取消他人订单被拒绝（403）", other_cancel.get("code") == 403, other_cancel.get("message"))
+    lisi_mine = call("/api/orders", token=LISI)["data"]
+    check("lisi 只看到自己的 1 条订单", lisi_mine["total"] == 1 and lisi_mine["items"][0]["userId"] == "U004",
+          f"{lisi_mine['total']} 条")
+
+    cancelled = call(f"/api/orders/{order_no}/cancel", method="POST", token=TOKEN)["data"]
     check("I10 取消后状态变为「已取消」", cancelled["status"] == "已取消", f"{order_no} -> {cancelled['status']}")
-    again = call(f"/api/orders/{order_no}")["data"]
+    again = call(f"/api/orders/{order_no}", token=TOKEN)["data"]
     check("I10 状态变更已写入内存（复查仍为已取消）", again["status"] == "已取消")
-    bad = call("/api/orders/ORD-NOT-EXIST")
+    bad = call("/api/orders/ORD-NOT-EXIST", token=TOKEN)
     check("I9 订单不存在时返回错误码", bad.get("code") == 404, bad.get("message"))
 except urllib.error.HTTPError as e:
     check("阶段8 接口可用", False, f"HTTP {e.code}：{e.reason}（若接口尚未实现属预期）")

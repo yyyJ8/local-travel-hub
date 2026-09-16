@@ -236,9 +236,10 @@ def _next_order_no() -> str:
     return "ORD" + datetime.now().strftime("%Y%m%d") + str(next(_order_seq))
 
 
-def create_order(payload) -> Optional[Dict]:
+def create_order(payload, user_id: str = "") -> Optional[Dict]:
     """模拟下单：校验套餐/房型存在后，将订单对象追加至内存集合。
 
+    user_id：下单用户 ID（登录后传入），用于订单归属与个人中心过滤。
     返回 None 表示门店/酒店或套餐/房型不存在（原型仅做存在性判断，不做真实业务校验）。
     """
     target_type = payload.type
@@ -267,6 +268,7 @@ def create_order(payload) -> Optional[Dict]:
 
     order = {
         "orderNo": _next_order_no(),
+        "userId": user_id,  # ★ 订单归属：个人中心按此字段过滤
         "type": target_type,
         "targetId": target["id"],
         "targetName": target["name"],
@@ -448,4 +450,110 @@ def user_stats() -> Dict:
             r: len([u for u in _users if u["role"] == r]) for r in ("user", "merchant", "admin")
         },
         "activeSessions": len(_sessions),
+    }
+
+
+# ---------------------------------------------------------------- 权限：订单归属 / 商家 / 管理员视图
+def find_target(target_id: str) -> Optional[Dict]:
+    """按 ID 找门店或酒店（用于订单归属与商家权限判断）。"""
+    return get_shop(target_id) or get_hotel(target_id)
+
+
+def merchant_targets(merchant_id: str) -> List[Dict]:
+    """商家名下的门店与酒店（列表级字段 + kind 标记）。"""
+    result: List[Dict] = []
+    for s in _shops:
+        if s.get("merchantId") == merchant_id:
+            result.append({**_brief_shop(s), "kind": "shop"})
+    for h in _hotels:
+        if h.get("merchantId") == merchant_id:
+            result.append({**_brief_hotel(h), "kind": "hotel"})
+    return result
+
+
+def list_orders_for(user: Optional[Dict]) -> List[Dict]:
+    """按角色返回可见订单（数据权限的核心）：
+
+    - 普通用户：仅自己的订单（order.userId == 自己）
+    - 商家：仅自己名下门店/酒店产生的订单
+    - 管理员：全部订单
+    - None：全部（仅供内部/自检脚本使用）
+    """
+    if not user:
+        return list_orders()
+    role = user.get("role")
+    if role == "admin":
+        return list_orders()
+    if role == "merchant":
+        mid = user.get("merchantId") or ""
+        if not mid:
+            return []
+        owned = {t["id"] for t in merchant_targets(mid)}
+        return [o for o in list_orders() if o.get("targetId") in owned]
+    return [o for o in list_orders() if o.get("userId") == user.get("id")]
+
+
+def can_access_order(order: Dict, user: Optional[Dict]) -> bool:
+    """判断当前用户是否有权查看/操作某订单。"""
+    if not user:
+        return False
+    role = user.get("role")
+    if role == "admin":
+        return True
+    if role == "merchant":
+        mid = user.get("merchantId") or ""
+        target = find_target(order.get("targetId", ""))
+        return bool(mid) and bool(target) and target.get("merchantId") == mid
+    return order.get("userId") == user.get("id")
+
+
+def merchant_summary(merchant_id: str) -> Dict:
+    """商家经营概览：名下门店/酒店 + 订单统计。"""
+    targets = merchant_targets(merchant_id)
+    ids = {t["id"] for t in targets}
+    orders = [o for o in _orders if o.get("targetId") in ids]
+    pending = [o for o in orders if o["status"] == "待使用"]
+    return {
+        "merchantId": merchant_id,
+        "targets": targets,
+        "targetCount": len(targets),
+        "orderCount": len(orders),
+        "pendingCount": len(pending),
+        "cancelledCount": len([o for o in orders if o["status"] == "已取消"]),
+        "pendingAmount": round(sum(float(o["amount"]) for o in pending), 2),
+        "reviewCount": sum(int(t.get("reviewCount") or 0) for t in targets),
+    }
+
+
+def update_merchant_profile(merchant_id: str, business_hours: str = "", intro: str = "") -> int:
+    """商家维护自己门店/酒店的信息（原型只开放营业时间与简介）。返回被更新的对象数。"""
+    updated = 0
+    for s in _shops:
+        if s.get("merchantId") == merchant_id and business_hours:
+            s["businessHours"] = business_hours
+            updated += 1
+    for h in _hotels:
+        if h.get("merchantId") == merchant_id and intro:
+            h["intro"] = intro
+            updated += 1
+    return updated
+
+
+def admin_overview() -> Dict:
+    """管理员平台概览。"""
+    pending = [o for o in _orders if o["status"] == "待使用"]
+    return {
+        "shops": len(_shops),
+        "hotels": len(_hotels),
+        "users": len(_users),
+        "usersByRole": {
+            r: len([u for u in _users if u["role"] == r]) for r in ("user", "merchant", "admin")
+        },
+        "disabledUsers": len([u for u in _users if u["status"] != "正常"]),
+        "orders": len(_orders),
+        "pendingOrders": len(pending),
+        "cancelledOrders": len([o for o in _orders if o["status"] == "已取消"]),
+        "pendingAmount": round(sum(float(o["amount"]) for o in pending), 2),
+        "sessions": len(_sessions),
+        "cities": len(list_cities()),
     }

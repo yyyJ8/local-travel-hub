@@ -85,8 +85,7 @@ for name, role in presets.items():
     tokens[name] = d.get("token", "")
     check(f"预置账号 {name} 可登录且角色={role}", r.get("code") == 0 and d.get("user", {}).get("role") == role,
           f"角色 {d.get('user', {}).get('role')}")
-check("商家账号绑定门店 merchantId=S001",
-      call("/api/auth/me", token=tokens["shangjia"])["data"].get("merchantId") == "S001")
+check("商家账号绑定商家 ID M001", call("/api/auth/me", token=tokens["shangjia"])["data"].get("merchantId") == "M001")
 
 # ---------------------------------------------------------------- A4 当前用户
 print("\n--- A4 当前登录用户 ---")
@@ -113,6 +112,65 @@ st = call("/api/meta/stats")["data"]
 check("统计接口包含用户数与角色分布",
       st.get("users", 0) >= 4 and st.get("usersByRole", {}).get("admin") == 1,
       f"users={st.get('users')} 分布={st.get('usersByRole')} 活跃会话={st.get('sessions')}")
+
+# ---------------------------------------------------------------- 角色与数据权限（step2）
+print("\n--- 角色与数据权限（普通用户 / 商家 / 管理员）---")
+r = call("/api/merchant/summary", token=tokens["demo"])
+check("普通用户访问商家接口被拒绝（403）", r.get("code") == 403, r.get("message"))
+r = call("/api/admin/overview", token=tokens["demo"])
+check("普通用户访问管理员接口被拒绝（403）", r.get("code") == 403, r.get("message"))
+
+r = call("/api/merchant/summary", token=tokens["shangjia"])
+targets = (r.get("data") or {}).get("targets", [])
+check("商家可查看自己名下门店概览（S001）",
+      r.get("code") == 0 and any(t["id"] == "S001" for t in targets),
+      f"名下 {len(targets)} 个：{[t['id'] for t in targets]}")
+
+r = call("/api/merchant/orders", token=tokens["shangjia"])
+morders = (r.get("data") or {}).get("items", [])
+check("商家订单只包含自己门店产生的订单",
+      r.get("code") == 0 and all(o["targetId"] == "S001" for o in morders),
+      f"{len(morders)} 条，门店集合 {sorted({o['targetId'] for o in morders})}")
+
+r = call("/api/admin/users", token=tokens["shangjia"])
+check("商家访问管理员接口被拒绝（403）", r.get("code") == 403, r.get("message"))
+
+before_hours = call("/api/shops/S002")["data"]["businessHours"]
+r = call("/api/merchant/profile", "PUT", {"businessHours": "09:00 - 23:00"}, token=tokens["shangjia"])
+check("商家可维护自己门店的营业时间", r.get("code") == 0 and r["data"].get("updated") == 1, str(r.get("data")))
+check("营业时间已更新（内存生效）",
+      call("/api/shops/S001")["data"]["businessHours"] == "09:00 - 23:00",
+      call("/api/shops/S001")["data"]["businessHours"])
+check("其他门店未被改动（越权隔离）",
+      call("/api/shops/S002")["data"]["businessHours"] == before_hours,
+      f"S002 仍为 {before_hours}")
+r = call("/api/merchant/profile", "PUT", {"businessHours": ""}, token=tokens["shangjia"])
+check("商家维护空内容被拒绝（400）", r.get("code") == 400, r.get("message"))
+# 还原演示数据
+call("/api/merchant/profile", "PUT", {"businessHours": before_hours}, token=tokens["shangjia"])
+
+r = call("/api/admin/overview", token=tokens["admin"])
+check("管理员可查看平台概览", r.get("code") == 0 and r["data"]["shops"] == 20 and r["data"]["users"] >= 4,
+      f"门店 {r['data']['shops']} / 用户 {r['data']['users']} / 订单 {r['data']['orders']}")
+r = call("/api/admin/users", token=tokens["admin"])
+check("管理员可查看用户列表且不含密码字段",
+      r.get("code") == 0 and r["data"]["total"] >= 4 and all("password" not in json.dumps(u) for u in r["data"]["items"]),
+      f"{r['data']['total']} 个账号")
+r = call("/api/admin/orders", token=tokens["admin"])
+check("管理员可查看全平台订单", r.get("code") == 0 and r["data"]["total"] >= 3, f"{r['data']['total']} 条")
+
+r = call("/api/admin/users/U004/status", "POST", {"status": "停用"}, token=tokens["admin"])
+check("管理员可停用账号", r.get("code") == 0 and r["data"]["status"] == "停用", str(r.get("data")))
+r = call("/api/auth/login", "POST", {"username": "lisi", "password": "123456"})
+check("被停用账号无法登录（401）", r.get("code") == 401, r.get("message"))
+r = call("/api/admin/users/U003/status", "POST", {"status": "停用"}, token=tokens["admin"])
+check("管理员不能停用自己（400）", r.get("code") == 400, r.get("message"))
+r = call("/api/admin/users/U999/status", "POST", {"status": "停用"}, token=tokens["admin"])
+check("停用不存在的账号返回 404", r.get("code") == 404, r.get("message"))
+r = call("/api/admin/users/U004/status", "POST", {"status": "正常"}, token=tokens["admin"])
+check("管理员可恢复账号为正常", r.get("code") == 0 and r["data"]["status"] == "正常")
+r = call("/api/auth/login", "POST", {"username": "lisi", "password": "123456"})
+check("恢复后 lisi 可正常登录", r.get("code") == 0, str(r.get("code")))
 
 print("=" * 74)
 failed = [r for r in results if not r[0]]

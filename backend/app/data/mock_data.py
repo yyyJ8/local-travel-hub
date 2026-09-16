@@ -202,7 +202,7 @@ def _gen_reviews(hotel: Dict) -> List[Dict]:
 
 # ---------------------------------------------------------------- 门店原始数据（12 家）
 _SHOPS_RAW: List[Dict] = [
-    {"id": "S001", "name": "蜀大侠火锅（春熙路店）", "category": "美食", "subCategory": "火锅", "rating": 4.8, "reviewCount": 8642, "avgPrice": 128, "popularity": 98600, "tags": ["麻辣牛肉", "毛肚", "鲜切黄牛肉"], "district": "锦江区", "address": "成都市锦江区春熙路东段 18 号 3 层", "businessHours": "11:00 - 次日 02:00", "phone": "028-8611-0001", "coverColor": "#ff6633", "coverTag": "火锅"},
+    {"id": "S001", "name": "蜀大侠火锅（春熙路店）", "category": "美食", "subCategory": "火锅", "rating": 4.8, "reviewCount": 8642, "avgPrice": 128, "popularity": 98600, "tags": ["麻辣牛肉", "毛肚", "鲜切黄牛肉"], "district": "锦江区", "address": "成都市锦江区春熙路东段 18 号 3 层", "businessHours": "11:00 - 次日 02:00", "phone": "028-8611-0001", "coverColor": "#ff6633", "coverTag": "火锅", "merchantId": "M001"},
     {"id": "S002", "name": "海底捞火锅（万象城店）", "category": "美食", "subCategory": "火锅", "rating": 4.7, "reviewCount": 7320, "avgPrice": 156, "popularity": 91200, "tags": ["捞派滑牛肉", "虾滑", "番茄锅底"], "district": "成华区", "address": "成都市成华区双庆路 8 号万象城 4 层", "businessHours": "10:30 - 次日 03:00", "phone": "028-8432-0002", "coverColor": "#fa541c", "coverTag": "火锅"},
     {"id": "S003", "name": "陈麻婆豆腐（宽窄巷子店）", "category": "美食", "subCategory": "川菜", "rating": 4.6, "reviewCount": 5210, "avgPrice": 78, "popularity": 68400, "tags": ["麻婆豆腐", "夫妻肺片", "回锅肉"], "district": "青羊区", "address": "成都市青羊区窄巷子 12 号", "businessHours": "10:00 - 21:30", "phone": "028-8623-0003", "coverColor": "#d4380d", "coverTag": "川菜"},
     {"id": "S004", "name": "大龙燚火锅（建设路店）", "category": "美食", "subCategory": "火锅", "rating": 4.5, "reviewCount": 4108, "avgPrice": 112, "popularity": 57300, "tags": ["麻辣牛肉", "鸭肠", "千层毛肚"], "district": "成华区", "address": "成都市成华区建设路 33 号", "businessHours": "11:30 - 次日 01:00", "phone": "028-8433-0004", "coverColor": "#cf1322", "coverTag": "火锅"},
@@ -285,6 +285,7 @@ _BANNER_PHOTO_KEYWORDS: List[str] = [
 SHOPS: List[Dict] = []
 for _shop in _SHOPS_RAW:
     _shop.setdefault("city", "成都")  # 早期数据未含城市字段，统一按成都处理
+    _shop.setdefault("merchantId", "")  # 商家归属：空串表示平台自营
     _item = dict(_shop)
     _item["packages"] = _gen_packages(_shop)
     _item["comments"] = _gen_comments(_shop)
@@ -292,6 +293,7 @@ for _shop in _SHOPS_RAW:
 
 HOTELS: List[Dict] = []
 for _hotel in _HOTELS_RAW:
+    _hotel.setdefault("merchantId", "")  # 商家归属：空串表示平台自营
     _item = dict(_hotel)
     _item["rooms"] = _gen_rooms(_hotel)
     _item["reviews"] = _gen_reviews(_hotel)
@@ -339,6 +341,7 @@ def _preset_orders() -> List[Dict]:
     return [
         {
             "orderNo": "ORD" + (_NOW - timedelta(days=6)).strftime("%Y%m%d") + "1001",
+            "userId": "U001",  # 归属 demo 账号，用于演示"只看到自己的订单"
             "type": "shop",
             "targetId": shop["id"],
             "targetName": shop["name"],
@@ -359,6 +362,7 @@ def _preset_orders() -> List[Dict]:
         },
         {
             "orderNo": "ORD" + (_NOW - timedelta(days=4)).strftime("%Y%m%d") + "1002",
+            "userId": "U001",
             "type": "hotel",
             "targetId": hotel["id"],
             "targetName": hotel["name"],
@@ -379,6 +383,7 @@ def _preset_orders() -> List[Dict]:
         },
         {
             "orderNo": "ORD" + (_NOW - timedelta(days=15)).strftime("%Y%m%d") + "1003",
+            "userId": "U004",  # 归属 lisi 账号：用它登录看不到 demo 的订单
             "type": "shop",
             "targetId": shop2["id"],
             "targetName": shop2["name"],
@@ -430,7 +435,7 @@ USERS: List[Dict] = [
         "avatarColor": "#fa541c",
         "status": "正常",
         "createdAt": (_NOW - timedelta(days=60)).strftime("%Y-%m-%d %H:%M:%S"),
-        "merchantId": "S001",  # 商家绑定的门店（仅能看到自己的门店与订单）
+        "merchantId": "M001",  # 商家 ID（与 Shop/Hotel 的 merchantId 同口径），名下门店见 S001
     },
     {
         "id": "U003",
@@ -442,6 +447,18 @@ USERS: List[Dict] = [
         "avatarColor": "#722ed1",
         "status": "正常",
         "createdAt": (_NOW - timedelta(days=90)).strftime("%Y-%m-%d %H:%M:%S"),
+        "merchantId": "",
+    },
+    {
+        "id": "U004",
+        "username": "lisi",
+        "password": "123456",
+        "role": "user",
+        "nickname": "李四",
+        "phone": "13900002222",
+        "avatarColor": "#52c41a",
+        "status": "正常",
+        "createdAt": (_NOW - timedelta(days=20)).strftime("%Y-%m-%d %H:%M:%S"),
         "merchantId": "",
     },
 ]

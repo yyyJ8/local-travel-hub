@@ -5,8 +5,10 @@
  * 数据来源：I4 门店详情接口
  */
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getShopDetail } from '../api/shop'
+import { useAuth } from '../composables/useAuth'
 import NavBar from '../components/NavBar.vue'
 import StarRate from '../components/StarRate.vue'
 import CoverImage from '../components/CoverImage.vue'
@@ -15,11 +17,13 @@ import DetailSkeleton from '../components/DetailSkeleton.vue'
 import { Location, Clock, Phone, Ticket } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const router = useRouter()
+const auth = useAuth()
 const loading = ref(true)
 const shop = ref(null)
 const error = ref('')
 
-// 下单弹窗（阶段8：接通 I7 模拟下单接口）
+// 下单弹窗（下单需登录，未登录先跳登录页并回跳本页）
 const showOrder = ref(false)
 const selectedItem = ref(null)
 
@@ -36,6 +40,11 @@ async function load() {
 }
 
 function buy(pkg) {
+  if (!auth.isLoggedIn.value) {
+    ElMessage.warning('预约下单需要先登录')
+    router.push({ path: '/login', query: { redirect: `/shops/${route.params.id}` } })
+    return
+  }
   selectedItem.value = pkg
   showOrder.value = true
 }

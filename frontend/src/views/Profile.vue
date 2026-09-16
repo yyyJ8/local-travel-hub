@@ -1,24 +1,41 @@
 <script setup>
 /**
  * 个人中心（订单业务域）
- * 功能：查看模拟预约订单列表、查看订单详情、模拟执行取消预约操作
- * 数据来源：I8 订单列表 / I10 模拟取消预约（原型无登录注册，展示内存集合中的全部模拟订单）
+ * 功能：查看**当前登录用户自己**的预约订单、查看订单详情、模拟取消预约
+ * 数据来源：I8 我的订单 / I10 模拟取消（后端按登录用户过滤，接口需带令牌）
  */
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrders, cancelOrder } from '../api/order'
+import { useAuth } from '../composables/useAuth'
 import NavBar from '../components/NavBar.vue'
 import CoverImage from '../components/CoverImage.vue'
 import CardSkeleton from '../components/CardSkeleton.vue'
 import { User, Refresh } from '@element-plus/icons-vue'
 
+const auth = useAuth()
 const router = useRouter()
 const loading = ref(false)
 const orders = ref([])
 const filter = ref('全部')
 
 const FILTERS = ['全部', '待使用', '已取消']
+
+async function onLogout() {
+  try {
+    await ElMessageBox.confirm('确认退出当前账号吗？', '退出登录', {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+  } catch (e) {
+    return
+  }
+  await auth.logout()
+  ElMessage.success('已退出登录')
+  router.replace('/')
+}
 
 const shown = computed(() =>
   filter.value === '全部' ? orders.value : orders.value.filter((o) => o.status === filter.value)
@@ -73,13 +90,19 @@ onMounted(load)
       </template>
     </NavBar>
 
-    <!-- 模拟用户信息（原型无登录注册） -->
+    <!-- 当前登录用户信息（登录后展示真实账号；未登录时由路由守卫拦到登录页） -->
     <div class="user-head">
-      <div class="avatar"><el-icon :size="22" color="#fff"><User /></el-icon></div>
-      <div class="user-info">
-        <div class="user-name">演示用户</div>
-        <div class="user-sub">原型无注册登录，展示内存中的全部模拟订单</div>
+      <div class="avatar" :style="{ background: auth.user.value?.avatarColor || 'rgba(255,255,255,0.25)' }">
+        <el-icon :size="22" color="#fff"><User /></el-icon>
       </div>
+      <div class="user-info">
+        <div class="user-name">{{ auth.displayName.value }}</div>
+        <div class="user-sub">
+          <span class="role-chip">{{ auth.roleText.value }}</span>
+          <span>{{ auth.user.value?.phone || '未填写手机号' }}</span>
+        </div>
+      </div>
+      <el-button class="logout-btn" size="small" plain @click="onLogout">退出登录</el-button>
     </div>
 
     <!-- 订单概览 -->
@@ -168,15 +191,40 @@ onMounted(load)
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: none;
 }
 .user-name {
   font-size: 16px;
   font-weight: 700;
 }
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
 .user-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11.5px;
-  opacity: 0.92;
-  margin-top: 3px;
+  opacity: 0.94;
+  margin-top: 4px;
+}
+.role-chip {
+  padding: 0 6px;
+  line-height: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.logout-btn {
+  flex: none;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.logout-btn:hover {
+  color: var(--dp-orange);
+  background: #fff;
 }
 .stats {
   display: flex;

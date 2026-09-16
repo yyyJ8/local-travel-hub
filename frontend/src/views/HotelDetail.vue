@@ -5,8 +5,10 @@
  * 数据来源：I6 酒店详情接口
  */
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getHotelDetail } from '../api/hotel'
+import { useAuth } from '../composables/useAuth'
 import NavBar from '../components/NavBar.vue'
 import StarRate from '../components/StarRate.vue'
 import CoverImage from '../components/CoverImage.vue'
@@ -15,13 +17,15 @@ import DetailSkeleton from '../components/DetailSkeleton.vue'
 import { Location, Check, Calendar } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const router = useRouter()
+const auth = useAuth()
 const loading = ref(true)
 const error = ref('')
 const hotel = ref(null)
 
 const nights = computed(() => Number(route.query.nights || 0))
 
-// 阶段8 将把此处替换为公共下单弹窗（OrderDialog）并真正提交订单
+// 下单弹窗（下单需登录，未登录先跳登录页并回跳本页）
 const showOrder = ref(false)
 const selectedRoom = ref(null)
 
@@ -40,6 +44,11 @@ async function load() {
 }
 
 function book(room) {
+  if (!auth.isLoggedIn.value) {
+    ElMessage.warning('预订房间需要先登录')
+    router.push({ path: '/login', query: { redirect: `/hotels/${route.params.id}` } })
+    return
+  }
   selectedRoom.value = room
   showOrder.value = true
 }
