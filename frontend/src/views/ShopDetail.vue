@@ -11,6 +11,7 @@ import NavBar from '../components/NavBar.vue'
 import StarRate from '../components/StarRate.vue'
 import CoverImage from '../components/CoverImage.vue'
 import OrderDialog from '../components/OrderDialog.vue'
+import DetailSkeleton from '../components/DetailSkeleton.vue'
 import { Location, Clock, Phone, Ticket } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -50,9 +51,7 @@ onMounted(load)
   <div>
     <NavBar title="门店详情" show-back />
 
-    <div v-if="loading" style="padding: 16px">
-      <el-skeleton :rows="8" animated />
-    </div>
+    <DetailSkeleton v-if="loading" hero-height="180px" />
     <div v-else-if="error" class="empty-tip">{{ error }}</div>
 
     <template v-else-if="shop">

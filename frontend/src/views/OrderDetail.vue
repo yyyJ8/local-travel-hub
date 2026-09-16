@@ -10,6 +10,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderDetail, cancelOrder } from '../api/order'
 import NavBar from '../components/NavBar.vue'
 import CoverImage from '../components/CoverImage.vue'
+import DetailSkeleton from '../components/DetailSkeleton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -51,9 +52,7 @@ onMounted(load)
   <div>
     <NavBar title="订单详情" show-back />
 
-    <div v-if="loading" style="padding: 16px">
-      <el-skeleton :rows="7" animated />
-    </div>
+    <DetailSkeleton v-if="loading" hero-height="64px" />
     <div v-else-if="error" class="empty-tip">{{ error }}</div>
 
     <template v-else-if="order">

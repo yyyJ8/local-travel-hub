@@ -10,6 +10,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrders, cancelOrder } from '../api/order'
 import NavBar from '../components/NavBar.vue'
 import CoverImage from '../components/CoverImage.vue'
+import CardSkeleton from '../components/CardSkeleton.vue'
 import { User, Refresh } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -112,9 +113,7 @@ onMounted(load)
       >{{ f }}</span>
     </div>
 
-    <div v-if="loading" style="padding: 16px">
-      <el-skeleton :rows="5" animated />
-    </div>
+    <CardSkeleton v-if="loading" :count="3" cover="62px" />
 
     <template v-else>
       <div v-for="o in shown" :key="o.orderNo" class="order-card">

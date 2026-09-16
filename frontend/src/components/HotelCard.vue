@@ -1,6 +1,7 @@
 <script setup>
 /**
  * 酒店卡片（公共组件）：首页推荐、酒店列表、搜索结果三处复用。
+ * 信息层级：酒店名 > 星级/评分数字 > 房价 > 设施标签（字号字重逐级递减）
  */
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -48,16 +49,16 @@ function open() {
         <span class="district">{{ hotel.district }}</span>
       </div>
       <div class="rate-line">
-        <StarRate :value="hotel.rating" :size="12" color="#0086f6" />
+        <StarRate :value="hotel.rating" :size="12" :score-size="15" color="#0086f6" />
         <span class="review-count">{{ hotel.reviewCount }} 条评价</span>
       </div>
       <div class="tags">
-        <span v-for="f in topFacilities" :key="f" class="chip">{{ f }}</span>
+        <span v-for="f in topFacilities" :key="f" class="chip-line is-blue">{{ f }}</span>
       </div>
       <div class="price-line">
-        <span class="price-ctrip">¥{{ hotel.minPrice }}</span>
-        <span class="unit">起</span>
-        <span v-if="nights > 0" class="total">{{ nights }} 晚约 ¥{{ totalPrice }}</span>
+        <span class="price-ctrip price-num">¥{{ hotel.minPrice }}</span>
+        <span class="price-unit">起</span>
+        <span v-if="nights > 0" class="nights-chip">{{ nights }} 晚约 ¥{{ totalPrice }}</span>
         <span class="addr ellipsis"><el-icon :size="12"><Location /></el-icon>{{ hotel.district }}</span>
       </div>
     </div>
@@ -72,6 +73,7 @@ function open() {
   background: #fff;
   border-bottom: 1px solid #f2f3f5;
   cursor: pointer;
+  transition: background 0.15s;
 }
 .hotel-card:active {
   background: #fafafa;
@@ -81,10 +83,16 @@ function open() {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+.name-line {
+  display: flex;
+  align-items: center;
   gap: 5px;
+  min-width: 0;
 }
 .name {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 600;
 }
 .star-line {
@@ -104,39 +112,32 @@ function open() {
 .rate-line {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 .review-count {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-light);
 }
 .tags {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   flex-wrap: wrap;
-}
-.chip {
-  font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: #eef7ff;
-  color: var(--ctrip-blue);
 }
 .price-line {
   display: flex;
   align-items: baseline;
-  gap: 3px;
+  gap: 2px;
 }
 .price-ctrip {
-  font-size: 17px;
+  color: var(--ctrip-blue);
 }
-.unit {
-  color: var(--text-light);
-  font-size: 11px;
-}
-.total {
+.nights-chip {
   margin-left: 8px;
   font-size: 11px;
+  padding: 0 6px;
+  line-height: 16px;
+  border-radius: 9px;
+  background: #fff1e8;
   color: var(--dp-orange);
 }
 .addr {
@@ -146,15 +147,9 @@ function open() {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  max-width: 40%;
+  max-width: 38%;
 }
 /* 榜单名次角标（首页推荐区） */
-.name-line {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-}
 .rank-no {
   flex: none;
   width: 16px;

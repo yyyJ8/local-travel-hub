@@ -1,6 +1,7 @@
 <script setup>
 /**
  * 门店卡片（公共组件）：首页推荐、门店列表、搜索结果三处复用。
+ * 信息层级：门店名 > 评分数字 > 价格 > 标签/地址（字号字重逐级递减）
  */
 import { useRouter } from 'vue-router'
 import CoverImage from './CoverImage.vue'
@@ -28,17 +29,17 @@ function open() {
         <span class="name ellipsis">{{ shop.name }}</span>
       </div>
       <div class="rate-line">
-        <StarRate :value="shop.rating" />
-        <span class="review-count">{{ shop.reviewCount }} 条</span>
+        <StarRate :value="shop.rating" :size="12" :score-size="15" />
+        <span class="review-count">{{ shop.reviewCount }} 条评价</span>
       </div>
       <div class="tags">
-        <span class="chip chip-orange">{{ shop.subCategory }}</span>
-        <span class="chip">{{ shop.district }}</span>
-        <span v-if="shop.packageCount" class="chip chip-blue">{{ shop.packageCount }} 个团购</span>
+        <span class="chip-line is-orange">{{ shop.subCategory }}</span>
+        <span class="chip-line">{{ shop.district }}</span>
+        <span v-if="shop.packageCount" class="chip-line is-blue">{{ shop.packageCount }} 个团购</span>
       </div>
       <div class="price-line">
-        <span class="price">¥{{ shop.avgPrice }}</span>
-        <span class="unit">/人</span>
+        <span class="price price-num">¥{{ shop.avgPrice }}</span>
+        <span class="price-unit">/人</span>
         <span class="addr ellipsis">
           <el-icon :size="12"><Location /></el-icon>{{ shop.address }}
         </span>
@@ -55,6 +56,7 @@ function open() {
   background: #fff;
   border-bottom: 1px solid #f2f3f5;
   cursor: pointer;
+  transition: background 0.15s;
 }
 .shop-card:active {
   background: #fafafa;
@@ -64,40 +66,31 @@ function open() {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+.name-line {
+  display: flex;
+  align-items: center;
   gap: 5px;
+  min-width: 0;
 }
 .name {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 600;
 }
 .rate-line {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 .review-count {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-light);
 }
 .tags {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   flex-wrap: wrap;
-}
-.chip {
-  font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: #f4f5f7;
-  color: var(--text-sub);
-}
-.chip-orange {
-  background: #fff1e8;
-  color: var(--dp-orange);
-}
-.chip-blue {
-  background: #e8f4ff;
-  color: var(--ctrip-blue);
 }
 .price-line {
   display: flex;
@@ -106,12 +99,6 @@ function open() {
 }
 .price {
   color: var(--dp-orange);
-  font-weight: 700;
-  font-size: 16px;
-}
-.unit {
-  color: var(--text-light);
-  font-size: 11px;
 }
 .addr {
   margin-left: 8px;
@@ -123,12 +110,6 @@ function open() {
   max-width: 55%;
 }
 /* 榜单名次角标（首页推荐区） */
-.name-line {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-}
 .rank-no {
   flex: none;
   width: 16px;

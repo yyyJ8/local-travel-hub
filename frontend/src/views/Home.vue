@@ -12,6 +12,7 @@ import { Location, Search } from '@element-plus/icons-vue'
 import { getHomeRecommend } from '../api/home'
 import ShopCard from '../components/ShopCard.vue'
 import HotelCard from '../components/HotelCard.vue'
+import CardSkeleton from '../components/CardSkeleton.vue'
 
 const router = useRouter()
 const loading = ref(true)
@@ -104,9 +105,7 @@ onMounted(load)
       </div>
     </header>
 
-    <div v-if="loading" class="loading">
-      <el-skeleton :rows="6" animated />
-    </div>
+    <CardSkeleton v-if="loading" :count="4" />
 
     <div v-else-if="error" class="empty-tip">
       {{ error }}

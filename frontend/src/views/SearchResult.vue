@@ -9,6 +9,7 @@ import { searchAll } from '../api/search'
 import NavBar from '../components/NavBar.vue'
 import ShopCard from '../components/ShopCard.vue'
 import HotelCard from '../components/HotelCard.vue'
+import CardSkeleton from '../components/CardSkeleton.vue'
 
 const route = useRoute()
 const loading = ref(false)
@@ -41,9 +42,7 @@ watch(() => route.query.keyword, (v) => load(v))
   <div>
     <NavBar show-back show-search :keyword="String(route.query.keyword || '')" />
 
-    <div v-if="loading" style="padding: 16px">
-      <el-skeleton :rows="6" animated />
-    </div>
+    <CardSkeleton v-if="loading" :count="4" />
 
     <template v-else>
       <div class="summary">

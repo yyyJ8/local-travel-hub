@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router'
 import { getShops } from '../api/shop'
 import NavBar from '../components/NavBar.vue'
 import ShopCard from '../components/ShopCard.vue'
+import CardSkeleton from '../components/CardSkeleton.vue'
 import { Refresh } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -126,9 +127,7 @@ onMounted(load)
       {{ query.city === '全部' ? '全部城市' : query.city }} · 符合条件的门店共 <b>{{ total }}</b> 家
     </div>
 
-    <div v-if="loading" style="padding: 16px">
-      <el-skeleton :rows="6" animated />
-    </div>
+    <CardSkeleton v-if="loading" :count="5" />
     <template v-else>
       <ShopCard v-for="s in list" :key="s.id" :shop="s" />
       <div v-if="!list.length" class="empty-tip">没有符合条件的门店，试试放宽筛选条件</div>

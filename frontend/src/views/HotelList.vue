@@ -9,6 +9,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { getHotels, getFacilities } from '../api/hotel'
 import NavBar from '../components/NavBar.vue'
 import HotelCard from '../components/HotelCard.vue'
+import CardSkeleton from '../components/CardSkeleton.vue'
 import { Refresh, Calendar } from '@element-plus/icons-vue'
 
 const SORTS = [
@@ -164,9 +165,7 @@ onMounted(async () => {
       <span v-if="nights > 0">｜ {{ dateRange?.[0] }} 至 {{ dateRange?.[1] }} 共 <b>{{ nights }}</b> 晚</span>
     </div>
 
-    <div v-if="loading" style="padding: 16px">
-      <el-skeleton :rows="6" animated />
-    </div>
+    <CardSkeleton v-if="loading" :count="5" cover="100px" />
     <template v-else>
       <HotelCard
         v-for="h in list"

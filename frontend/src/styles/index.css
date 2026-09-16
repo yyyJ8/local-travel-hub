@@ -96,3 +96,70 @@ a {
   padding: 48px 0;
   font-size: 13px;
 }
+
+/* ---------- 统一标签样式：描边胶囊（列表 / 详情 / 订单共用一套，避免各页各写一份） ---------- */
+.chip-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 16px;
+  padding: 0 7px;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  color: var(--text-sub);
+  background: #fff;
+  white-space: nowrap;
+}
+.chip-line.is-orange {
+  border-color: #ffd8c4;
+  color: var(--dp-orange);
+  background: #fff8f4;
+}
+.chip-line.is-blue {
+  border-color: #cfe8ff;
+  color: var(--ctrip-blue);
+  background: #f5faff;
+}
+.chip-line.is-plain {
+  background: #f7f8fa;
+  border-color: transparent;
+}
+
+/* ---------- 统一价格层级：数字大而粗，单位小而灰 ---------- */
+.price-num {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+.price-unit {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-left: 1px;
+}
+
+/* ---------- 卡片形骨架屏（比 el-skeleton 通用行更贴近真实卡片版式） ---------- */
+.sk {
+  position: relative;
+  overflow: hidden;
+  background: #eef0f3;
+  border-radius: 6px;
+}
+.sk::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: sk-shimmer 1.4s infinite;
+}
+@keyframes sk-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
