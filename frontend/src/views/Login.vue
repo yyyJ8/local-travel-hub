@@ -159,7 +159,7 @@ onMounted(() => {
 
     <div class="tip">
       <el-icon :size="13"><ShoppingBag /></el-icon>
-      浏览门店与酒店无需登录，下单与个人中心需要登录
+      登录后即可浏览门店酒店、下单与查看订单；商家 / 管理员请用对应演示账号进入各自后台
     </div>
   </div>
 </template>

@@ -34,7 +34,7 @@ async function onLogout() {
   }
   await auth.logout()
   ElMessage.success('已退出登录')
-  router.replace('/')
+  router.replace('/login') // 登录优先：退出后回到登录页
 }
 
 const shown = computed(() =>

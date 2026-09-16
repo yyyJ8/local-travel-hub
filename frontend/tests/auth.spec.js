@@ -173,9 +173,31 @@ describe('路由守卫', () => {
     expect(router.currentRoute.value.path).toBe('/')
   })
 
-  it('浏览类页面免登录', async () => {
-    clearSession()
+  it('未登录访问任意应用页面（首页/列表/详情）都被引导到登录页', async () => {
+    // 每次先把当前路由切到公开的登录页，避免"重复导航"被跳过导致守卫不执行
+    for (const path of ['/', '/shops', '/hotels', '/shops/S001', '/search']) {
+      clearSession()
+      await router.push('/login')
+      await router.push(path)
+      expect(router.currentRoute.value.path).toBe('/login')
+      expect(String(router.currentRoute.value.query.redirect)).toBe(path)
+    }
+  })
+
+  it('登录后即可进入应用（首页与列表页放行）', async () => {
+    writeSession('t-user3', USER)
+    await router.push('/')
+    expect(router.currentRoute.value.path).toBe('/')
     await router.push('/shops')
     expect(router.currentRoute.value.path).toBe('/shops')
+    await router.push('/profile')
+    expect(router.currentRoute.value.path).toBe('/profile')
+  })
+
+  it('登录页是唯一公开页面（meta.public）', () => {
+    const login = router.getRoutes().find((r) => r.name === 'login')
+    expect(login.meta.public).toBe(true)
+    const others = router.getRoutes().filter((r) => r.name && r.name !== 'login')
+    expect(others.every((r) => !r.meta.public)).toBe(true)
   })
 })
