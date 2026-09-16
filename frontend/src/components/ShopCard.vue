@@ -8,7 +8,8 @@ import StarRate from './StarRate.vue'
 import { Location } from '@element-plus/icons-vue'
 
 const props = defineProps({
-  shop: { type: Object, required: true }
+  shop: { type: Object, required: true },
+  rank: { type: Number, default: 0 } // 榜单名次（1~3 显示角标），仅首页推荐区传入
 })
 
 const router = useRouter()
@@ -22,7 +23,10 @@ function open() {
   <div class="shop-card" @click="open">
     <CoverImage :src="shop.cover" :color="shop.coverColor" :tag="shop.coverTag" width="92px" height="92px" />
     <div class="info">
-      <div class="name ellipsis">{{ shop.name }}</div>
+      <div class="name-line">
+        <span v-if="rank >= 1 && rank <= 3" class="rank-no" :class="`r${rank}`">{{ rank }}</span>
+        <span class="name ellipsis">{{ shop.name }}</span>
+      </div>
       <div class="rate-line">
         <StarRate :value="shop.rating" />
         <span class="review-count">{{ shop.reviewCount }} 条</span>
@@ -117,5 +121,33 @@ function open() {
   align-items: center;
   gap: 2px;
   max-width: 55%;
+}
+/* 榜单名次角标（首页推荐区） */
+.name-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.rank-no {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.r1 {
+  background: linear-gradient(135deg, #ff4d4f, #ff7875);
+}
+.r2 {
+  background: linear-gradient(135deg, #ff7a45, #ffa940);
+}
+.r3 {
+  background: linear-gradient(135deg, #ffa940, #ffc53d);
 }
 </style>

@@ -45,6 +45,22 @@ describe('阶段5 首页模块', () => {
     expect(text).not.toContain('加载失败')
   })
 
+  it('首页头图：渲染定位栏、悬浮搜索框、快捷词与榜单角标', async () => {
+    getHomeRecommend.mockResolvedValue(homeFixture)
+    const { wrapper } = await mountView(Home, '/')
+    await flush()
+    expect(wrapper.find('.home-header').exists()).toBe(true)
+    expect(wrapper.find('.search-box').exists()).toBe(true)
+    expect(wrapper.find('input.search-input').exists()).toBe(true)
+    const text = wrapper.text()
+    expect(text).toContain('发现身边的好店')
+    expect(text).toContain('火锅') // 快捷搜索词
+    expect(text).toContain('人气榜')
+    expect(text).toContain('好评榜')
+    expect(wrapper.find('.rank-no').exists()).toBe(true)
+    expect(wrapper.find('.cat-icon').exists()).toBe(true)
+  })
+
   it('后端不可用时不白屏，给出错误提示与重新加载按钮', async () => {
     getHomeRecommend.mockRejectedValue(new Error('boom'))
     const { wrapper } = await mountView(Home, '/')

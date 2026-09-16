@@ -44,6 +44,19 @@ describe('公共组件渲染', () => {
     expect(wrapper.text()).toContain('火锅')
   })
 
+  it('ShopCard：传入 rank 时渲染榜单名次角标', async () => {
+    const { wrapper } = await mountView(ShopCard, '/', { props: { shop: shopFixture, rank: 1 } })
+    const badge = wrapper.find('.rank-no')
+    expect(badge.exists()).toBe(true)
+    expect(badge.text()).toBe('1')
+    expect(badge.classes()).toContain('r1')
+  })
+
+  it('ShopCard：不传 rank 时不渲染角标（列表页复用同一组件）', async () => {
+    const { wrapper } = await mountView(ShopCard, '/', { props: { shop: shopFixture } })
+    expect(wrapper.find('.rank-no').exists()).toBe(false)
+  })
+
   it('ShopCard：渲染门店名称、评分、人均、品类标签、团购数量与封面图', async () => {
     const { wrapper } = await mountView(ShopCard, '/', { props: { shop: shopFixture } })
     const text = wrapper.text()

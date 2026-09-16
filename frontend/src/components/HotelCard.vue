@@ -12,7 +12,8 @@ const props = defineProps({
   hotel: { type: Object, required: true },
   nights: { type: Number, default: 0 },
   checkIn: { type: String, default: '' },
-  checkOut: { type: String, default: '' }
+  checkOut: { type: String, default: '' },
+  rank: { type: Number, default: 0 } // 榜单名次（1~3 显示角标），仅首页推荐区传入
 })
 
 const router = useRouter()
@@ -37,7 +38,10 @@ function open() {
   <div class="hotel-card" @click="open">
     <CoverImage :src="hotel.cover" :color="hotel.coverColor" :tag="hotel.coverTag" width="100px" height="100px" />
     <div class="info">
-      <div class="name ellipsis">{{ hotel.name }}</div>
+      <div class="name-line">
+        <span v-if="rank >= 1 && rank <= 3" class="rank-no" :class="`r${rank}`">{{ rank }}</span>
+        <span class="name ellipsis">{{ hotel.name }}</span>
+      </div>
       <div class="star-line">
         <span class="star-text">{{ starText }}</span>
         <span class="star-label">{{ hotel.star }} 星级</span>
@@ -143,5 +147,33 @@ function open() {
   align-items: center;
   gap: 2px;
   max-width: 40%;
+}
+/* 榜单名次角标（首页推荐区） */
+.name-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.rank-no {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.r1 {
+  background: linear-gradient(135deg, #0086f6, #40a9ff);
+}
+.r2 {
+  background: linear-gradient(135deg, #1890ff, #69c0ff);
+}
+.r3 {
+  background: linear-gradient(135deg, #40a9ff, #91d5ff);
 }
 </style>
